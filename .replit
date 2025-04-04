@@ -54,7 +54,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mkdir -p build && cd build && cmake .. && make -j$(nproc)"
+args = "cd build && make && cd .. && ./build/SimpleReverb"
 
 [[workflows.workflow]]
 name = "build_juce_plugin"

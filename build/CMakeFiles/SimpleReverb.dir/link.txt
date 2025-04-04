@@ -1,0 +1,1 @@
+/nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++ CMakeFiles/SimpleReverb.dir/SimpleReverb.cpp.o -o SimpleReverb  -lm
