@@ -1,0 +1,52 @@
+modules = ["cpp"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build and Run JUCE Plugin"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "build_reverb_plugin"
+
+[[workflows.workflow]]
+name = "Build and Run JUCE Plugin"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p build && cd build && cmake .. && cmake --build . && cd bin && ./CustomReverbPlugin_artefacts/CustomReverbPlugin"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "build_reverb_plugin"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p build && cd build && cmake .. && make -j$(nproc)"
+
+[deployment]
+run = ["sh", "-c", "mkdir -p build && cd build && cmake .. && cmake --build . && cd bin && ./CustomReverbPlugin_artefacts/CustomReverbPlugin"]
