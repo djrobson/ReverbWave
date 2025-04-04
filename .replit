@@ -85,7 +85,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./SimpleReverb"
+args = "./build/SimpleReverb"
 
 [[workflows.workflow]]
 name = "Build SimpleReverb"
