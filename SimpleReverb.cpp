@@ -582,14 +582,14 @@ int main() {
     params.crossover = 0.6f;   // Crossover at ~1.5kHz
     processor.setReverbParameters(params);
     
-    // Generate test signals (different frequencies for more interesting visualization)
+    // Generate test signals (specific frequencies as requested)
     int channels = 2; // Stereo
     float duration = 3.0f; // 3 seconds
     
-    // Mix multiple sine waves for a richer spectrum
+    // Mix multiple sine waves at specific frequencies: 200, 400, 800, 1600, 3200, and 6400 Hz
     std::vector<float> audioBuffer(static_cast<int>(sampleRate * duration) * channels, 0.0f);
-    std::vector<float> freqs = {110.0f, 220.0f, 440.0f, 880.0f, 1760.0f};
-    std::vector<float> amps = {0.3f, 0.25f, 0.2f, 0.15f, 0.1f};
+    std::vector<float> freqs = {200.0f, 400.0f, 800.0f, 1600.0f, 3200.0f, 6400.0f};
+    std::vector<float> amps = {0.25f, 0.22f, 0.19f, 0.16f, 0.12f, 0.09f};
     
     for (int i = 0; i < freqs.size(); ++i) {
         auto sineWave = generateSineWave(freqs[i], sampleRate, duration, channels);
