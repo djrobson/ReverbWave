@@ -8,25 +8,20 @@
 #include <thread>
 #include <chrono>
 #include <iomanip>
-#ifndef _WIN32
-    #include <unistd.h>
-    #include <sys/select.h>
-    #include <termios.h>
-    #include <fcntl.h>
-#endif
-#include "SpectrumAnalyzer.h"
 
 // Windows specific includes
 #ifdef _WIN32
+#define NOMINMAX
     #include <conio.h>    // For _kbhit() and _getch()
     #include <windows.h>  // For Windows specific functionality
-#endif
-#ifndef _WIN32
+#else
     #include <unistd.h>
     #include <sys/select.h>
     #include <termios.h>
     #include <fcntl.h>
 #endif
+
+#include "SpectrumAnalyzer.h"
 
 class SimpleReverb {
 public:
@@ -485,7 +480,11 @@ bool writeWavFile(const std::string& filename, const std::vector<float>& buffer,
     std::vector<int16_t> pcmData(buffer.size());
     for (size_t i = 0; i < buffer.size(); ++i) {
         // Convert float [-1,1] to int16 [-32768,32767]
-        pcmData[i] = static_cast<int16_t>(std::max(-1.0f, std::min(buffer[i], 1.0f)) * 32767.0f);
+        pcmData[i] = static_cast<int16_t>(
+            std::max(
+                -1.0f, 
+                std::min(buffer[i], 1.0f)
+            ) * 32767.0f);
     }
     
     file.write(reinterpret_cast<char*>(pcmData.data()), pcmData.size() * sizeof(int16_t));

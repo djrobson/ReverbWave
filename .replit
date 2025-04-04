@@ -13,79 +13,23 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Build and Run JUCE Plugin"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "build_reverb_plugin"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "build_juce_plugin"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Run SimpleReverb Demo"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Build SimpleReverb"
 
-[[workflows.workflow]]
-name = "Build and Run JUCE Plugin"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Run ReverbGUI"
 
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
+task = "workflow.run"
+args = "Run SimpleReverb"
 
 [[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mkdir -p build && cd build && cmake .. && cmake --build . && ./CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"
-
-[[workflows.workflow]]
-name = "build_reverb_plugin"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
+task = "workflow.run"
+args = "Run ReverbGUI Demo"
 
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd build && make && cd .. && ./build/SimpleReverb"
-
-[[workflows.workflow]]
-name = "build_juce_plugin"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "mkdir -p build && cd build && cmake .. && make"
-
-[[workflows.workflow]]
-name = "Run SimpleReverb Demo"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./build/SimpleReverb"
+task = "workflow.run"
+args = "Run IntegrationDemo"
 
 [[workflows.workflow]]
 name = "Build SimpleReverb"
@@ -100,6 +44,62 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "rm -rf build && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make SimpleReverb -j4"
+
+[[workflows.workflow]]
+name = "Run ReverbGUI"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd build && ./ReverbGUI"
+
+[[workflows.workflow]]
+name = "Run SimpleReverb"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd build && ./SimpleReverb"
+
+[[workflows.workflow]]
+name = "Run ReverbGUI Demo"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd build && ./ReverbGUI"
+
+[[workflows.workflow]]
+name = "Run IntegrationDemo"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd build && ./IntegrationDemo"
 
 [deployment]
 run = ["sh", "-c", "mkdir -p build && cd build && cmake .. && cmake --build . && ./CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"]
