@@ -1,23 +1,15 @@
 /*
   ==============================================================================
 
-    PluginProcessor.cpp
-    Created: Custom Reverb Plugin
-    Author:  Audio Plugin Developer
+    CustomReverbProcessor.cpp
+    Created: 2023
+    Author:  Audio Developer
 
   ==============================================================================
 */
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
-//==============================================================================
-// Define the parameter IDs
-const juce::String CustomReverbAudioProcessor::roomSizeID = "roomSize";
-const juce::String CustomReverbAudioProcessor::dampingID = "damping";
-const juce::String CustomReverbAudioProcessor::widthID = "width";
-const juce::String CustomReverbAudioProcessor::wetLevelID = "wetLevel";
-const juce::String CustomReverbAudioProcessor::dryLevelID = "dryLevel";
 
 //==============================================================================
 CustomReverbAudioProcessor::CustomReverbAudioProcessor()
@@ -31,76 +23,37 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
                      #endif
                        ),
 #endif
-    parameters(*this, nullptr, "PARAMETERS", createParameterLayout())
+       apvts(*this, nullptr, "Parameters", createParameters())
 {
-    // Register as a listener to all parameters
-    parameters.addParameterListener(roomSizeID, this);
-    parameters.addParameterListener(dampingID, this);
-    parameters.addParameterListener(widthID, this);
-    parameters.addParameterListener(wetLevelID, this);
-    parameters.addParameterListener(dryLevelID, this);
+    // Initialize reverb parameters with defaults
+    reverbParams.roomSize = 0.5f;
+    reverbParams.damping = 0.5f;
+    reverbParams.wetLevel = 0.33f;
+    reverbParams.dryLevel = 0.4f;
+    reverbParams.width = 1.0f;
+    reverbParams.freezeMode = 0.0f;
     
-    // Initialize reverb parameters with default values
-    updateReverbParameters();
+    // Set the initial reverb parameters
+    reverb.setParameters(reverbParams);
+    
+    // Add listeners for all parameters
+    apvts.addParameterListener("roomSize", this);
+    apvts.addParameterListener("damping", this);
+    apvts.addParameterListener("wetLevel", this);
+    apvts.addParameterListener("dryLevel", this);
+    apvts.addParameterListener("width", this);
+    apvts.addParameterListener("freezeMode", this);
 }
 
 CustomReverbAudioProcessor::~CustomReverbAudioProcessor()
 {
-    // Remove parameter listeners
-    parameters.removeParameterListener(roomSizeID, this);
-    parameters.removeParameterListener(dampingID, this);
-    parameters.removeParameterListener(widthID, this);
-    parameters.removeParameterListener(wetLevelID, this);
-    parameters.removeParameterListener(dryLevelID, this);
-}
-
-//==============================================================================
-juce::AudioProcessorValueTreeState::ParameterLayout CustomReverbAudioProcessor::createParameterLayout()
-{
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    
-    // Room size - controls the reverb time
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        roomSizeID, "Room Size", 0.0f, 1.0f, 0.5f));
-    
-    // Damping - controls high frequency rolloff
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        dampingID, "Damping", 0.0f, 1.0f, 0.5f));
-    
-    // Width - controls stereo width
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        widthID, "Width", 0.0f, 1.0f, 1.0f));
-    
-    // Wet level - controls the reverb effect amount
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        wetLevelID, "Wet Level", 0.0f, 1.0f, 0.33f));
-    
-    // Dry level - controls the amount of original signal
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        dryLevelID, "Dry Level", 0.0f, 1.0f, 0.4f));
-    
-    return { params.begin(), params.end() };
-}
-
-void CustomReverbAudioProcessor::updateReverbParameters()
-{
-    reverbParams.roomSize = *parameters.getRawParameterValue(roomSizeID);
-    reverbParams.damping = *parameters.getRawParameterValue(dampingID);
-    reverbParams.width = *parameters.getRawParameterValue(widthID);
-    reverbParams.wetLevel = *parameters.getRawParameterValue(wetLevelID);
-    reverbParams.dryLevel = *parameters.getRawParameterValue(dryLevelID);
-    
-    // Always freeze set to false (this would create an infinite reverb)
-    reverbParams.freezeMode = 0.0f;
-    
-    // Apply the parameters to the reverb processor
-    reverb.setParameters(reverbParams);
-}
-
-void CustomReverbAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
-{
-    // Update reverb parameters when any parameter changes
-    updateReverbParameters();
+    // Remove listeners for all parameters
+    apvts.removeParameterListener("roomSize", this);
+    apvts.removeParameterListener("damping", this);
+    apvts.removeParameterListener("wetLevel", this);
+    apvts.removeParameterListener("dryLevel", this);
+    apvts.removeParameterListener("width", this);
+    apvts.removeParameterListener("freezeMode", this);
 }
 
 //==============================================================================
@@ -138,7 +91,7 @@ bool CustomReverbAudioProcessor::isMidiEffect() const
 
 double CustomReverbAudioProcessor::getTailLengthSeconds() const
 {
-    return 3.0; // Reverb tails can be long, so we give it a decent length
+    return 2.0; // A reasonable tail time for a reverb effect
 }
 
 int CustomReverbAudioProcessor::getNumPrograms()
@@ -154,15 +107,18 @@ int CustomReverbAudioProcessor::getCurrentProgram()
 
 void CustomReverbAudioProcessor::setCurrentProgram (int index)
 {
+    juce::ignoreUnused(index);
 }
 
 const juce::String CustomReverbAudioProcessor::getProgramName (int index)
 {
+    juce::ignoreUnused(index);
     return {};
 }
 
 void CustomReverbAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+    juce::ignoreUnused(index, newName);
 }
 
 //==============================================================================
@@ -171,6 +127,9 @@ void CustomReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     // Initialize the reverb with the current sample rate
     reverb.reset();
     reverb.setSampleRate(sampleRate);
+    
+    // Update parameters with current APVTS values
+    updateReverbParameters();
 }
 
 void CustomReverbAudioProcessor::releaseResources()
@@ -187,18 +146,14 @@ bool CustomReverbAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
     return true;
   #else
     // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
+    // We support mono and stereo
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+    // Check if input and output channel configurations match
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
 
     return true;
   #endif
@@ -211,40 +166,23 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, clear any unused output channels
+    // Clear any output channels that don't have input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    // Process the reverb - JUCE's reverb processor handles stereo processing internally
-    // If the buffer is not stereo, we need to handle it differently
-    if (totalNumInputChannels == 2 && totalNumOutputChannels == 2)
+    // Apply reverb to the buffer
+    // The JUCE reverb processor can handle both mono and stereo signals
+    if (totalNumInputChannels == 1)
     {
-        // Stereo processing - use JUCE's reverb processor
+        // For mono input
+        reverb.processMono(buffer.getWritePointer(0), buffer.getNumSamples());
+    }
+    else
+    {
+        // For stereo input
         reverb.processStereo(buffer.getWritePointer(0), 
                             buffer.getWritePointer(1), 
                             buffer.getNumSamples());
-    }
-    else if (totalNumInputChannels == 1 && totalNumOutputChannels == 1)
-    {
-        // Mono processing
-        float* channelData = buffer.getWritePointer(0);
-        
-        // Create a duplicate buffer for stereo processing
-        juce::AudioBuffer<float> stereoBuffer(2, buffer.getNumSamples());
-        stereoBuffer.copyFrom(0, 0, channelData, buffer.getNumSamples());
-        stereoBuffer.copyFrom(1, 0, channelData, buffer.getNumSamples());
-        
-        // Process the stereo buffer
-        reverb.processStereo(stereoBuffer.getWritePointer(0), 
-                            stereoBuffer.getWritePointer(1), 
-                            buffer.getNumSamples());
-        
-        // Mix down to mono
-        buffer.clear();
-        for (int i = 0; i < buffer.getNumSamples(); ++i)
-        {
-            channelData[i] = (stereoBuffer.getSample(0, i) + stereoBuffer.getSample(1, i)) * 0.5f;
-        }
     }
 }
 
@@ -262,23 +200,73 @@ juce::AudioProcessorEditor* CustomReverbAudioProcessor::createEditor()
 //==============================================================================
 void CustomReverbAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // Store the parameter state
-    auto state = parameters.copyState();
+    // Store the APVTS state to save plugin parameters
+    auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
 }
 
 void CustomReverbAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // Restore the parameter state
+    // Restore the APVTS state to load plugin parameters
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
     
     if (xmlState.get() != nullptr)
-        if (xmlState->hasTagName(parameters.state.getType()))
-            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
-            
-    // Make sure to update the reverb parameters after state is loaded
+        if (xmlState->hasTagName(apvts.state.getType()))
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+    
+    // Update the reverb parameters based on loaded state
     updateReverbParameters();
+}
+
+//==============================================================================
+void CustomReverbAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue)
+{
+    // Update the relevant reverb parameter when a control changes
+    if (parameterID == "roomSize")
+        reverbParams.roomSize = newValue;
+    else if (parameterID == "damping")
+        reverbParams.damping = newValue;
+    else if (parameterID == "wetLevel")
+        reverbParams.wetLevel = newValue;
+    else if (parameterID == "dryLevel")
+        reverbParams.dryLevel = newValue;
+    else if (parameterID == "width")
+        reverbParams.width = newValue;
+    else if (parameterID == "freezeMode")
+        reverbParams.freezeMode = newValue;
+    
+    // Apply the updated parameters
+    reverb.setParameters(reverbParams);
+}
+
+void CustomReverbAudioProcessor::updateReverbParameters()
+{
+    // Get current parameter values from the APVTS
+    reverbParams.roomSize = *apvts.getRawParameterValue("roomSize");
+    reverbParams.damping = *apvts.getRawParameterValue("damping");
+    reverbParams.wetLevel = *apvts.getRawParameterValue("wetLevel");
+    reverbParams.dryLevel = *apvts.getRawParameterValue("dryLevel");
+    reverbParams.width = *apvts.getRawParameterValue("width");
+    reverbParams.freezeMode = *apvts.getRawParameterValue("freezeMode");
+    
+    // Apply the updated parameters
+    reverb.setParameters(reverbParams);
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout CustomReverbAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
+    
+    // Add all the reverb parameters
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("damping", "Damping", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("wetLevel", "Wet Level", 0.0f, 1.0f, 0.33f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("dryLevel", "Dry Level", 0.0f, 1.0f, 0.4f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("width", "Width", 0.0f, 1.0f, 1.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("freezeMode", "Freeze Mode", 0.0f, 1.0f, 0.0f));
+    
+    return { parameters.begin(), parameters.end() };
 }
 
 //==============================================================================

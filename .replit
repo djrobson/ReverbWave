@@ -19,6 +19,14 @@ args = "Build and Run JUCE Plugin"
 task = "workflow.run"
 args = "build_reverb_plugin"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "build_juce_plugin"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Run SimpleReverb Demo"
+
 [[workflows.workflow]]
 name = "Build and Run JUCE Plugin"
 author = "agent"
@@ -31,7 +39,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mkdir -p build && cd build && cmake .. && cmake --build . && cd bin && ./CustomReverbPlugin_artefacts/CustomReverbPlugin"
+args = "cmake -B build && cmake --build build && ./build/CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -48,5 +56,33 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "mkdir -p build && cd build && cmake .. && make -j$(nproc)"
 
+[[workflows.workflow]]
+name = "build_juce_plugin"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "mkdir -p build && cd build && cmake .. && make"
+
+[[workflows.workflow]]
+name = "Run SimpleReverb Demo"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./SimpleReverb"
+
 [deployment]
-run = ["sh", "-c", "mkdir -p build && cd build && cmake .. && cmake --build . && cd bin && ./CustomReverbPlugin_artefacts/CustomReverbPlugin"]
+run = ["sh", "-c", "cmake -B build && cmake --build build && ./build/CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"]

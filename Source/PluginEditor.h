@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    PluginEditor.h
-    Created: Custom Reverb Plugin
-    Author:  Audio Plugin Developer
+    CustomReverbEditor.h
+    Created: 2023
+    Author:  Audio Developer
 
   ==============================================================================
 */
@@ -27,32 +27,35 @@ public:
     void resized() override;
 
 private:
-    // Reference to the processor object
+    // This reference is provided as a quick way for your editor to
+    // access the processor object that created it.
     CustomReverbAudioProcessor& audioProcessor;
     
-    // Sliders for the reverb parameters
+    // UI Components
     juce::Slider roomSizeSlider;
     juce::Slider dampingSlider;
-    juce::Slider widthSlider;
     juce::Slider wetLevelSlider;
     juce::Slider dryLevelSlider;
+    juce::Slider widthSlider;
+    juce::ToggleButton freezeModeButton;
     
-    // Labels for the sliders
+    // Labels for sliders
     juce::Label roomSizeLabel;
     juce::Label dampingLabel;
-    juce::Label widthLabel;
     juce::Label wetLevelLabel;
     juce::Label dryLevelLabel;
+    juce::Label widthLabel;
     
-    // Slider attachments to connect sliders to parameters
+    // Slider attachment objects to connect the UI to the parameters
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomSizeAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dampingAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> widthAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> wetLevelAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dryLevelAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> widthAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> freezeModeAttachment;
     
-    // Setup slider with common properties
-    void setupSlider(juce::Slider& slider, juce::Label& label, const juce::String& labelText);
+    // Custom LookAndFeel for the sliders
+    juce::LookAndFeel_V4 customLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomReverbAudioProcessorEditor)
 };

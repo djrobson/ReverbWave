@@ -2,9 +2,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(CustomReverbPlugin VERSION 1.0.0)
 
-# Find JUCE package
-# This assumes you have JUCE installed in a standard location or specified via CMAKE_PREFIX_PATH
-find_package(JUCE CONFIG REQUIRED)
+# Include JUCE subdirectory
+add_subdirectory(JUCE)
 
 # Define the plugin formats to build - VST3 and AU are the most common
 set(PLUGIN_FORMATS 

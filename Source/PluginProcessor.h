@@ -1,9 +1,9 @@
 /*
   ==============================================================================
 
-    PluginProcessor.h
-    Created: Custom Reverb Plugin
-    Author:  Audio Plugin Developer
+    CustomReverbProcessor.h
+    Created: 2023
+    Author:  Audio Developer
 
   ==============================================================================
 */
@@ -57,31 +57,26 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     //==============================================================================
-    void parameterChanged(const juce::String& parameterID, float newValue) override;
+    // Parameter listener implementation
+    void parameterChanged(const juce::String &parameterID, float newValue) override;
     
-    juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
+    // Reference to the APVTS - public for editor access
+    juce::AudioProcessorValueTreeState& getAPVTS() { return apvts; }
 
 private:
+    //==============================================================================
     // Reverb processor and parameters
     juce::Reverb reverb;
     juce::Reverb::Parameters reverbParams;
     
-    // Parameter layout creation
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    // Audio processor value tree state for parameter management
+    juce::AudioProcessorValueTreeState apvts;
     
-    // AudioProcessorValueTreeState to handle plugin parameters
-    juce::AudioProcessorValueTreeState parameters;
+    // Parameter creation helper
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     
-    // Parameter IDs
-    static const juce::String roomSizeID;
-    static const juce::String dampingID;
-    static const juce::String widthID;
-    static const juce::String wetLevelID;
-    static const juce::String dryLevelID;
-    
-    // Update the reverb parameters based on current parameter values
+    // Update reverb parameters based on current values
     void updateReverbParameters();
     
-    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomReverbAudioProcessor)
 };
