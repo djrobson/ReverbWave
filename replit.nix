@@ -1,5 +1,13 @@
 {pkgs}: {
   deps = [
+    pkgs.pcre2
+    pkgs.gtk3
+    pkgs.webkitgtk
+    pkgs.curl
+    pkgs.fontconfig
+    pkgs.xorg.libXcomposite
+    pkgs.xorg.libXcursor
+    pkgs.xorg.libXinerama
     pkgs.mesa
     pkgs.xorg.libXrandr
     pkgs.xorg.libXext

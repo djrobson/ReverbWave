@@ -27,6 +27,10 @@ args = "build_juce_plugin"
 task = "workflow.run"
 args = "Run SimpleReverb Demo"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build SimpleReverb"
+
 [[workflows.workflow]]
 name = "Build and Run JUCE Plugin"
 author = "agent"
@@ -82,6 +86,20 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./SimpleReverb"
+
+[[workflows.workflow]]
+name = "Build SimpleReverb"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rm -rf build && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make SimpleReverb -j4"
 
 [deployment]
 run = ["sh", "-c", "mkdir -p build && cd build && cmake .. && cmake --build . && ./CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"]

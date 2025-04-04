@@ -21,21 +21,11 @@
     #include <conio.h>    // For _kbhit() and _getch()
     #include <windows.h>  // For Windows specific functionality
 #endif
-
-// Define M_PI for Windows if it's not defined
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
-#endif
-
-// Windows specific includes
-#ifdef _WIN32
-    #include <conio.h>    // For _kbhit() and _getch()
-    #include <windows.h>  // For Windows specific functionality
-#endif
-
-// Define M_PI for Windows if it's not defined
-#ifndef M_PI
-    #define M_PI 3.14159265358979323846
+#ifndef _WIN32
+    #include <unistd.h>
+    #include <sys/select.h>
+    #include <termios.h>
+    #include <fcntl.h>
 #endif
 
 class SimpleReverb {

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 project(CustomReverbPlugin VERSION 1.0.0)
 
 # Add the original SimpleReverb standalone app with spectrum analyzer
-add_executable(SimpleReverb SimpleReverb.cpp)
+add_executable(SimpleReverb SimpleReverb.cpp SpectrumAnalyzer.cpp)
 target_compile_features(SimpleReverb PRIVATE cxx_std_14)
 target_include_directories(SimpleReverb PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -38,7 +38,8 @@ juce_add_plugin(CustomReverbPlugin
 target_sources(CustomReverbPlugin
     PRIVATE
         Source/PluginProcessor.cpp
-        Source/PluginEditor.cpp)
+        Source/PluginEditor.cpp
+        SpectrumAnalyzer.cpp)
 
 # Set C++ standard
 target_compile_features(CustomReverbPlugin PRIVATE cxx_std_14)
