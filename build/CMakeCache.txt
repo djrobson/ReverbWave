@@ -239,6 +239,37 @@ CustomReverbPlugin_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 CustomReverbPlugin_SOURCE_DIR:STATIC=/home/runner/workspace
 
+//Value Computed by CMake
+JUCE_BINARY_DIR:STATIC=/home/runner/workspace/build/JUCE
+
+//Whether or not plugins should be installed to the system after
+// building
+JUCE_COPY_PLUGIN_AFTER_BUILD:BOOL=OFF
+
+//Show all module sources in IDE projects
+JUCE_ENABLE_MODULE_SOURCE_GROUPS:BOOL=OFF
+
+//Value Computed by CMake
+JUCE_IS_TOP_LEVEL:STATIC=OFF
+
+//Only configure the JUCE modules
+JUCE_MODULES_ONLY:BOOL=OFF
+
+//Value Computed by CMake
+JUCE_SOURCE_DIR:STATIC=/home/runner/workspace/JUCE
+
+//Arguments to supply to pkg-config
+PKG_CONFIG_ARGN:STRING=
+
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/nix/store/zdvrzlvzbn9ymb0z8na50w995j8np16z-pkg-config-wrapper-0.29.2/bin/pkg-config
+
+//Path to a library.
+pkgcfg_lib_juce_audio_devices_LINUX_DEPS_asound:FILEPATH=/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11/lib/libasound.so
+
+//Path to a library.
+pkgcfg_lib_juce_opengl_LINUX_DEPS_GL:FILEPATH=/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib/libGL.so
+
 
 ########################
 # INTERNAL cache entries
@@ -344,7 +375,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -389,6 +420,212 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/nix/store/php4qidg2bxzmm79vpri025bqi0fa889-coreutils-9.5/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/nix/store/zdvrzlvzbn9ymb0z8na50w995j8np16z-pkg-config-wrapper-0.29.2/bin/pkg-config][v0.29.2()]
+JUCE_BROWSER_LINUX_DEPS_CFLAGS:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_CFLAGS_I:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_CFLAGS_OTHER:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_FOUND:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_INCLUDEDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_LIBDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_LIBS:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_LIBS_L:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_LIBS_OTHER:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_LIBS_PATHS:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_MODULE_NAME:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_PREFIX:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_CFLAGS:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_CFLAGS_I:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_CFLAGS_OTHER:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_LIBDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_LIBS:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_LIBS_L:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_LIBS_OTHER:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_STATIC_LIBS_PATHS:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_VERSION:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_gtk+-x11-3.0_INCLUDEDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_gtk+-x11-3.0_LIBDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_gtk+-x11-3.0_PREFIX:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_gtk+-x11-3.0_VERSION:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_webkit2gtk-4.0_INCLUDEDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_webkit2gtk-4.0_LIBDIR:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_webkit2gtk-4.0_PREFIX:INTERNAL=
+JUCE_BROWSER_LINUX_DEPS_webkit2gtk-4.0_VERSION:INTERNAL=
+//The path to the folder holding this file and other resources
+JUCE_CMAKE_UTILS_DIR:INTERNAL=/home/runner/workspace/JUCE/extras/Build/CMake
+JUCE_CURL_LINUX_DEPS_CFLAGS:INTERNAL=
+JUCE_CURL_LINUX_DEPS_CFLAGS_I:INTERNAL=
+JUCE_CURL_LINUX_DEPS_CFLAGS_OTHER:INTERNAL=
+JUCE_CURL_LINUX_DEPS_FOUND:INTERNAL=
+JUCE_CURL_LINUX_DEPS_INCLUDEDIR:INTERNAL=
+JUCE_CURL_LINUX_DEPS_LIBDIR:INTERNAL=
+JUCE_CURL_LINUX_DEPS_LIBS:INTERNAL=
+JUCE_CURL_LINUX_DEPS_LIBS_L:INTERNAL=
+JUCE_CURL_LINUX_DEPS_LIBS_OTHER:INTERNAL=
+JUCE_CURL_LINUX_DEPS_LIBS_PATHS:INTERNAL=
+JUCE_CURL_LINUX_DEPS_MODULE_NAME:INTERNAL=
+JUCE_CURL_LINUX_DEPS_PREFIX:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_CFLAGS:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_CFLAGS_I:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_CFLAGS_OTHER:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_LIBDIR:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_LIBS:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_LIBS_L:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_LIBS_OTHER:INTERNAL=
+JUCE_CURL_LINUX_DEPS_STATIC_LIBS_PATHS:INTERNAL=
+JUCE_CURL_LINUX_DEPS_VERSION:INTERNAL=
+JUCE_CURL_LINUX_DEPS_libcurl_INCLUDEDIR:INTERNAL=
+JUCE_CURL_LINUX_DEPS_libcurl_LIBDIR:INTERNAL=
+JUCE_CURL_LINUX_DEPS_libcurl_PREFIX:INTERNAL=
+JUCE_CURL_LINUX_DEPS_libcurl_VERSION:INTERNAL=
+//The path to JUCE modules
+JUCE_MODULES_DIR:INTERNAL=/home/runner/workspace/JUCE/modules
+//The target architecture, used to name internal folders in VST3
+// bundles, and to locate bundled libraries in modules
+JUCE_TARGET_ARCHITECTURE:INTERNAL=x86_64
+//ADVANCED property for variable: PKG_CONFIG_ARGN
+PKG_CONFIG_ARGN-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //linker supports push/pop state
 _CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
+__pkg_config_arguments_juce_audio_devices_LINUX_DEPS:INTERNAL=alsa
+__pkg_config_arguments_juce_opengl_LINUX_DEPS:INTERNAL=gl
+__pkg_config_checked_JUCE_BROWSER_LINUX_DEPS:INTERNAL=1
+__pkg_config_checked_JUCE_CURL_LINUX_DEPS:INTERNAL=1
+__pkg_config_checked_juce_audio_devices_LINUX_DEPS:INTERNAL=1
+__pkg_config_checked_juce_graphics_LINUX_DEPS:INTERNAL=1
+__pkg_config_checked_juce_opengl_LINUX_DEPS:INTERNAL=1
+__pkg_config_checked_package_to_be_found:INTERNAL=1
+//Result of TRY_COMPILE
+compile_result:INTERNAL=TRUE
+juce_audio_devices_LINUX_DEPS_CFLAGS:INTERNAL=-I/nix/store/qq2plda7pqjxh7dywyzsikxcbjqm3c2a-alsa-lib-1.2.11-dev/include
+juce_audio_devices_LINUX_DEPS_CFLAGS_I:INTERNAL=
+juce_audio_devices_LINUX_DEPS_CFLAGS_OTHER:INTERNAL=
+juce_audio_devices_LINUX_DEPS_FOUND:INTERNAL=1
+juce_audio_devices_LINUX_DEPS_INCLUDEDIR:INTERNAL=/nix/store/qq2plda7pqjxh7dywyzsikxcbjqm3c2a-alsa-lib-1.2.11-dev/include
+juce_audio_devices_LINUX_DEPS_INCLUDE_DIRS:INTERNAL=/nix/store/qq2plda7pqjxh7dywyzsikxcbjqm3c2a-alsa-lib-1.2.11-dev/include
+juce_audio_devices_LINUX_DEPS_LDFLAGS:INTERNAL=-L/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11/lib;-lasound
+juce_audio_devices_LINUX_DEPS_LDFLAGS_OTHER:INTERNAL=
+juce_audio_devices_LINUX_DEPS_LIBDIR:INTERNAL=/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11/lib
+juce_audio_devices_LINUX_DEPS_LIBRARIES:INTERNAL=asound
+juce_audio_devices_LINUX_DEPS_LIBRARY_DIRS:INTERNAL=/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11/lib
+juce_audio_devices_LINUX_DEPS_LIBS:INTERNAL=
+juce_audio_devices_LINUX_DEPS_LIBS_L:INTERNAL=
+juce_audio_devices_LINUX_DEPS_LIBS_OTHER:INTERNAL=
+juce_audio_devices_LINUX_DEPS_LIBS_PATHS:INTERNAL=
+juce_audio_devices_LINUX_DEPS_MODULE_NAME:INTERNAL=alsa
+juce_audio_devices_LINUX_DEPS_PREFIX:INTERNAL=/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11
+juce_audio_devices_LINUX_DEPS_STATIC_CFLAGS:INTERNAL=-I/nix/store/qq2plda7pqjxh7dywyzsikxcbjqm3c2a-alsa-lib-1.2.11-dev/include
+juce_audio_devices_LINUX_DEPS_STATIC_CFLAGS_I:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_CFLAGS_OTHER:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_INCLUDE_DIRS:INTERNAL=/nix/store/qq2plda7pqjxh7dywyzsikxcbjqm3c2a-alsa-lib-1.2.11-dev/include
+juce_audio_devices_LINUX_DEPS_STATIC_LDFLAGS:INTERNAL=-L/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11/lib;-lasound;-lm;-lpthread;-lrt
+juce_audio_devices_LINUX_DEPS_STATIC_LDFLAGS_OTHER:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_LIBDIR:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_LIBRARIES:INTERNAL=asound;m;pthread;rt
+juce_audio_devices_LINUX_DEPS_STATIC_LIBRARY_DIRS:INTERNAL=/nix/store/0g7r7krqiz6g3nb3651sfa5myd9gqkzf-alsa-lib-1.2.11/lib
+juce_audio_devices_LINUX_DEPS_STATIC_LIBS:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_LIBS_L:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_LIBS_OTHER:INTERNAL=
+juce_audio_devices_LINUX_DEPS_STATIC_LIBS_PATHS:INTERNAL=
+juce_audio_devices_LINUX_DEPS_VERSION:INTERNAL=1.2.11
+juce_audio_devices_LINUX_DEPS_alsa_INCLUDEDIR:INTERNAL=
+juce_audio_devices_LINUX_DEPS_alsa_LIBDIR:INTERNAL=
+juce_audio_devices_LINUX_DEPS_alsa_PREFIX:INTERNAL=
+juce_audio_devices_LINUX_DEPS_alsa_VERSION:INTERNAL=
+juce_graphics_LINUX_DEPS_CFLAGS:INTERNAL=
+juce_graphics_LINUX_DEPS_CFLAGS_I:INTERNAL=
+juce_graphics_LINUX_DEPS_CFLAGS_OTHER:INTERNAL=
+juce_graphics_LINUX_DEPS_FOUND:INTERNAL=
+juce_graphics_LINUX_DEPS_INCLUDEDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_LIBDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_LIBS:INTERNAL=
+juce_graphics_LINUX_DEPS_LIBS_L:INTERNAL=
+juce_graphics_LINUX_DEPS_LIBS_OTHER:INTERNAL=
+juce_graphics_LINUX_DEPS_LIBS_PATHS:INTERNAL=
+juce_graphics_LINUX_DEPS_MODULE_NAME:INTERNAL=
+juce_graphics_LINUX_DEPS_PREFIX:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_CFLAGS:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_CFLAGS_I:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_CFLAGS_OTHER:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_LIBDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_LIBS:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_LIBS_L:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_LIBS_OTHER:INTERNAL=
+juce_graphics_LINUX_DEPS_STATIC_LIBS_PATHS:INTERNAL=
+juce_graphics_LINUX_DEPS_VERSION:INTERNAL=
+juce_graphics_LINUX_DEPS_fontconfig_INCLUDEDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_fontconfig_LIBDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_fontconfig_PREFIX:INTERNAL=
+juce_graphics_LINUX_DEPS_fontconfig_VERSION:INTERNAL=
+juce_graphics_LINUX_DEPS_freetype2_INCLUDEDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_freetype2_LIBDIR:INTERNAL=
+juce_graphics_LINUX_DEPS_freetype2_PREFIX:INTERNAL=
+juce_graphics_LINUX_DEPS_freetype2_VERSION:INTERNAL=
+juce_opengl_LINUX_DEPS_CFLAGS:INTERNAL=-I/nix/store/smacbfb82wp7ncz2rwac68jd50qxr70a-libglvnd-1.7.0-dev/include
+juce_opengl_LINUX_DEPS_CFLAGS_I:INTERNAL=
+juce_opengl_LINUX_DEPS_CFLAGS_OTHER:INTERNAL=
+juce_opengl_LINUX_DEPS_FOUND:INTERNAL=1
+juce_opengl_LINUX_DEPS_INCLUDEDIR:INTERNAL=/nix/store/smacbfb82wp7ncz2rwac68jd50qxr70a-libglvnd-1.7.0-dev/include
+juce_opengl_LINUX_DEPS_INCLUDE_DIRS:INTERNAL=/nix/store/smacbfb82wp7ncz2rwac68jd50qxr70a-libglvnd-1.7.0-dev/include
+juce_opengl_LINUX_DEPS_LDFLAGS:INTERNAL=-L/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib;-lGL
+juce_opengl_LINUX_DEPS_LDFLAGS_OTHER:INTERNAL=
+juce_opengl_LINUX_DEPS_LIBDIR:INTERNAL=/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib
+juce_opengl_LINUX_DEPS_LIBRARIES:INTERNAL=GL
+juce_opengl_LINUX_DEPS_LIBRARY_DIRS:INTERNAL=/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib
+juce_opengl_LINUX_DEPS_LIBS:INTERNAL=
+juce_opengl_LINUX_DEPS_LIBS_L:INTERNAL=
+juce_opengl_LINUX_DEPS_LIBS_OTHER:INTERNAL=
+juce_opengl_LINUX_DEPS_LIBS_PATHS:INTERNAL=
+juce_opengl_LINUX_DEPS_MODULE_NAME:INTERNAL=gl
+juce_opengl_LINUX_DEPS_PREFIX:INTERNAL=/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0
+juce_opengl_LINUX_DEPS_STATIC_CFLAGS:INTERNAL=-I/nix/store/smacbfb82wp7ncz2rwac68jd50qxr70a-libglvnd-1.7.0-dev/include
+juce_opengl_LINUX_DEPS_STATIC_CFLAGS_I:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_CFLAGS_OTHER:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_INCLUDE_DIRS:INTERNAL=/nix/store/smacbfb82wp7ncz2rwac68jd50qxr70a-libglvnd-1.7.0-dev/include
+juce_opengl_LINUX_DEPS_STATIC_LDFLAGS:INTERNAL=-L/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib;-lGL
+juce_opengl_LINUX_DEPS_STATIC_LDFLAGS_OTHER:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_LIBDIR:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_LIBRARIES:INTERNAL=GL
+juce_opengl_LINUX_DEPS_STATIC_LIBRARY_DIRS:INTERNAL=/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib
+juce_opengl_LINUX_DEPS_STATIC_LIBS:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_LIBS_L:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_LIBS_OTHER:INTERNAL=
+juce_opengl_LINUX_DEPS_STATIC_LIBS_PATHS:INTERNAL=
+juce_opengl_LINUX_DEPS_VERSION:INTERNAL=1.2
+juce_opengl_LINUX_DEPS_gl_INCLUDEDIR:INTERNAL=
+juce_opengl_LINUX_DEPS_gl_LIBDIR:INTERNAL=
+juce_opengl_LINUX_DEPS_gl_PREFIX:INTERNAL=
+juce_opengl_LINUX_DEPS_gl_VERSION:INTERNAL=
+package_to_be_found_CFLAGS:INTERNAL=
+package_to_be_found_CFLAGS_I:INTERNAL=
+package_to_be_found_CFLAGS_OTHER:INTERNAL=
+package_to_be_found_FOUND:INTERNAL=
+package_to_be_found_INCLUDEDIR:INTERNAL=
+package_to_be_found_LIBDIR:INTERNAL=
+package_to_be_found_LIBS:INTERNAL=
+package_to_be_found_LIBS_L:INTERNAL=
+package_to_be_found_LIBS_OTHER:INTERNAL=
+package_to_be_found_LIBS_PATHS:INTERNAL=
+package_to_be_found_MODULE_NAME:INTERNAL=
+package_to_be_found_PREFIX:INTERNAL=
+package_to_be_found_STATIC_CFLAGS:INTERNAL=
+package_to_be_found_STATIC_CFLAGS_I:INTERNAL=
+package_to_be_found_STATIC_CFLAGS_OTHER:INTERNAL=
+package_to_be_found_STATIC_LIBDIR:INTERNAL=
+package_to_be_found_STATIC_LIBS:INTERNAL=
+package_to_be_found_STATIC_LIBS_L:INTERNAL=
+package_to_be_found_STATIC_LIBS_OTHER:INTERNAL=
+package_to_be_found_STATIC_LIBS_PATHS:INTERNAL=
+package_to_be_found_VERSION:INTERNAL=
+package_to_be_found_webkit2gtk-4.1_INCLUDEDIR:INTERNAL=
+package_to_be_found_webkit2gtk-4.1_LIBDIR:INTERNAL=
+package_to_be_found_webkit2gtk-4.1_PREFIX:INTERNAL=
+package_to_be_found_webkit2gtk-4.1_VERSION:INTERNAL=
+//ADVANCED property for variable: pkgcfg_lib_juce_audio_devices_LINUX_DEPS_asound
+pkgcfg_lib_juce_audio_devices_LINUX_DEPS_asound-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_juce_opengl_LINUX_DEPS_GL
+pkgcfg_lib_juce_opengl_LINUX_DEPS_GL-ADVANCED:INTERNAL=1
+prefix_result:INTERNAL=/nix/store/jz3vvf4nsyirb25rh9dbhksm4gq6wybb-libglvnd-1.7.0/lib
 

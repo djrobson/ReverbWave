@@ -1,0 +1,22 @@
+# Build output directories
+build/
+*.o
+*.exe
+*.out
+*.a
+*.so
+*.dll
+*.lib
+*.dylib
+
+# Backup files
+*.bak
+*~
+
+# Generated files
+*.wav
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp

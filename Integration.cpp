@@ -72,6 +72,8 @@ public:
         float dryLevel = 0.4f;
         float width = 1.0f;
         float freezeMode = 0.0f;
+        float highFreqDelay = 0.3f;
+        float crossover = 0.5f;
     };
     
     void setReverbParameters(const SimpleReverbParameters& params) {
@@ -86,6 +88,8 @@ public:
         std::cout << "  Dry Level: " << params.dryLevel << std::endl;
         std::cout << "  Width: " << params.width << std::endl;
         std::cout << "  Freeze Mode: " << params.freezeMode << std::endl;
+        std::cout << "  High Freq Delay: " << params.highFreqDelay << std::endl;
+        std::cout << "  Crossover: " << params.crossover << std::endl;
     }
     
 private:
@@ -133,6 +137,8 @@ public:
                 params.dryLevel = 0.8f;
                 params.width = 0.8f;
                 params.freezeMode = 0.0f;
+                params.highFreqDelay = 0.2f;
+                params.crossover = 0.4f;
                 break;
                 
             case 1: // Medium Room
@@ -142,6 +148,8 @@ public:
                 params.dryLevel = 0.7f;
                 params.width = 1.0f;
                 params.freezeMode = 0.0f;
+                params.highFreqDelay = 0.3f;
+                params.crossover = 0.5f;
                 break;
                 
             case 2: // Large Hall
@@ -151,6 +159,8 @@ public:
                 params.dryLevel = 0.5f;
                 params.width = 1.0f;
                 params.freezeMode = 0.0f;
+                params.highFreqDelay = 0.4f;
+                params.crossover = 0.6f;
                 break;
                 
             case 3: // Cathedral
@@ -160,6 +170,8 @@ public:
                 params.dryLevel = 0.4f;
                 params.width = 1.0f;
                 params.freezeMode = 0.0f;
+                params.highFreqDelay = 0.5f;
+                params.crossover = 0.7f;
                 break;
                 
             case 4: // Special FX
@@ -169,6 +181,30 @@ public:
                 params.dryLevel = 0.1f;
                 params.width = 1.0f;
                 params.freezeMode = 0.5f;
+                params.highFreqDelay = 0.8f;
+                params.crossover = 0.3f;
+                break;
+                
+            case 5: // Bright Chamber
+                params.roomSize = 0.6f;
+                params.damping = 0.2f;
+                params.wetLevel = 0.4f;
+                params.dryLevel = 0.6f;
+                params.width = 0.9f;
+                params.freezeMode = 0.0f;
+                params.highFreqDelay = 0.1f; // Very little high freq delay for brightness
+                params.crossover = 0.7f;     // High crossover point
+                break;
+                
+            case 6: // Dark Space
+                params.roomSize = 0.7f;
+                params.damping = 0.7f;
+                params.wetLevel = 0.5f;
+                params.dryLevel = 0.5f;
+                params.width = 0.8f;
+                params.freezeMode = 0.0f;
+                params.highFreqDelay = 0.7f; // More high freq delay for a darker sound
+                params.crossover = 0.3f;     // Low crossover point
                 break;
         }
         
