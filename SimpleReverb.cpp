@@ -8,7 +8,35 @@
 #include <thread>
 #include <chrono>
 #include <iomanip>
+#ifndef _WIN32
+    #include <unistd.h>
+    #include <sys/select.h>
+    #include <termios.h>
+    #include <fcntl.h>
+#endif
 #include "SpectrumAnalyzer.h"
+
+// Windows specific includes
+#ifdef _WIN32
+    #include <conio.h>    // For _kbhit() and _getch()
+    #include <windows.h>  // For Windows specific functionality
+#endif
+
+// Define M_PI for Windows if it's not defined
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+// Windows specific includes
+#ifdef _WIN32
+    #include <conio.h>    // For _kbhit() and _getch()
+    #include <windows.h>  // For Windows specific functionality
+#endif
+
+// Define M_PI for Windows if it's not defined
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 class SimpleReverb {
 public:
@@ -484,6 +512,17 @@ void clearScreen() {
     #endif
 }
 
+void initTerminal() {
+    #ifdef _WIN32
+        // Enable virtual terminal processing for color support on Windows
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD dwMode = 0;
+        GetConsoleMode(hOut, &dwMode);
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+    #endif
+}
+
 // Draw a spectrum analyzer visualization in the terminal
 void drawSpectrumAnalyzer(SpectrumAnalyzer* analyzer, bool interactive = false) {
     // Terminal dimensions (adjust as needed)
@@ -533,6 +572,8 @@ void drawSpectrumAnalyzer(SpectrumAnalyzer* analyzer, bool interactive = false) 
 }
 
 int main() {
+    // Initialize terminal for cross-platform color support
+    initTerminal();
     // Create our processor
     SimpleAudioProcessor processor;
     
@@ -630,16 +671,36 @@ int main() {
                     }
                 }
             #else
-                // For non-Windows platforms, just cycle through modes automatically
+                // For Unix-like systems, implement non-blocking input with ncurses or similar approach
+                // This is a simplified approach - for production code, consider using ncurses or similar libraries
+                struct timeval tv;
+                fd_set fds;
+                tv.tv_sec = 0;
+                tv.tv_usec = 0;
+                FD_ZERO(&fds);
+                FD_SET(STDIN_FILENO, &fds);
+                
+                if (select(STDIN_FILENO+1, &fds, NULL, NULL, &tv) > 0) {
+                    char key;
+                    if (read(STDIN_FILENO, &key, 1) > 0) {
+                        key = tolower(key);
+                        if (key == 'q') {
+                            running = false;
+                        } else if (key == 'm') {
+                            analyzer->setAnimationMode((analyzer->getAnimationMode() + 1) % 3);
+                        } else if (key == 'c') {
+                            analyzer->setColorScheme((analyzer->getColorScheme() + 1) % 3);
+                        }
+                    }
+                }
+                
+                // Also allow for automatic mode changes for demos
                 static int counter = 0;
-                if (++counter % 50 == 0) {
+                if (++counter % 100 == 0) {
                     analyzer->setAnimationMode((analyzer->getAnimationMode() + 1) % 3);
                 }
-                if (counter % 120 == 0) {
+                if (counter % 200 == 0) {
                     analyzer->setColorScheme((analyzer->getColorScheme() + 1) % 3);
-                }
-                if (counter >= 300) { // Exit after a while in non-interactive mode
-                    running = false;
                 }
             #endif
         }

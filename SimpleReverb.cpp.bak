@@ -5,6 +5,38 @@
 #include <random>
 #include <memory>
 #include <fstream>
+#include <thread>
+#include <chrono>
+#include <iomanip>
+#ifndef _WIN32
+    #include <unistd.h>
+    #include <sys/select.h>
+    #include <termios.h>
+    #include <fcntl.h>
+#endif
+#include "SpectrumAnalyzer.h"
+
+// Windows specific includes
+#ifdef _WIN32
+    #include <conio.h>    // For _kbhit() and _getch()
+    #include <windows.h>  // For Windows specific functionality
+#endif
+
+// Define M_PI for Windows if it's not defined
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+// Windows specific includes
+#ifdef _WIN32
+    #include <conio.h>    // For _kbhit() and _getch()
+    #include <windows.h>  // For Windows specific functionality
+#endif
+
+// Define M_PI for Windows if it's not defined
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 class SimpleReverb {
 public:
@@ -56,6 +88,9 @@ public:
         for (int i = 0; i < numCombs; ++i) {
             dampCoeffs[i] = dampScale;
         }
+        
+        // Set high frequency delay parameters
+        updateHighFreqDelay();
     }
     
     // Set the sample rate for the reverb
@@ -76,6 +111,21 @@ public:
             allpassDelayLines[i].resize(delaySize, 0.0f);
             allpassIndices[i] = 0;
         }
+        
+        // Initialize high-frequency delay lines
+        for (int i = 0; i < numHighFreqDelays; ++i) {
+            highFreqDelayLines[i].resize(maxHighFreqDelay * scaleFactor, 0.0f);
+            highFreqIndices[i] = 0;
+        }
+        
+        // Initialize high-pass and low-pass filters
+        updateHighFreqDelay();
+        
+        // Initialize filter states
+        for (int i = 0; i < 2; ++i) {
+            lowpassState[i] = 0.0f;
+            highpassState[i] = 0.0f;
+        }
     }
     
     // Reset all buffers
@@ -88,6 +138,16 @@ public:
         for (int i = 0; i < numAllPasses; ++i) {
             std::fill(allpassDelayLines[i].begin(), allpassDelayLines[i].end(), 0.0f);
         }
+        
+        for (int i = 0; i < numHighFreqDelays; ++i) {
+            std::fill(highFreqDelayLines[i].begin(), highFreqDelayLines[i].end(), 0.0f);
+        }
+        
+        // Reset filter states
+        for (int i = 0; i < 2; ++i) {
+            lowpassState[i] = 0.0f;
+            highpassState[i] = 0.0f;
+        }
     }
     
     // Process a buffer of audio samples
@@ -96,11 +156,27 @@ public:
             float input = buffer[i];
             float output = 0.0f;
             
-            // Process through the comb filters in parallel
-            float combOut = 0.0f;
+            // Split into low and high frequency bands
+            float lowFreq, highFreq;
+            splitFrequencies(input, lowFreq, highFreq, 0);
+            
+            // Process low frequencies through the comb filters in parallel
+            float combOutLow = 0.0f;
             for (int j = 0; j < numCombs; ++j) {
-                combOut += processComb(j, input);
+                combOutLow += processComb(j, lowFreq);
             }
+            
+            // Process high frequencies with added delay
+            float highFreqDelayed = processHighFreqDelay(highFreq, 0);
+            
+            // Process high frequencies through the comb filters
+            float combOutHigh = 0.0f;
+            for (int j = 0; j < numCombs; ++j) {
+                combOutHigh += processComb(j, highFreqDelayed);
+            }
+            
+            // Combine low and high frequency outputs
+            float combOut = combOutLow + combOutHigh;
             
             // Process through the allpass filters in series
             float allpassOut = combOut;
@@ -127,15 +203,36 @@ public:
             // Average the inputs for mono processing
             float monoInput = (inputL + inputR) * 0.5f;
             
+            // Split into low and high frequency bands for left channel
+            float lowFreqL, highFreqL;
+            splitFrequencies(monoInput, lowFreqL, highFreqL, 0);
+            
+            // Split into low and high frequency bands for right channel
+            float lowFreqR, highFreqR;
+            splitFrequencies(monoInput, lowFreqR, highFreqR, 1);
+            
             // Process through comb filters
-            float combOutL = 0.0f;
-            float combOutR = 0.0f;
+            float combOutLowL = 0.0f;
+            float combOutLowR = 0.0f;
+            float combOutHighL = 0.0f;
+            float combOutHighR = 0.0f;
+            
+            // Process high frequencies with added delay
+            float highFreqDelayedL = processHighFreqDelay(highFreqL, 0);
+            float highFreqDelayedR = processHighFreqDelay(highFreqR, 1);
             
             // Use the first half of the combs for the left channel, second half for right
             for (int j = 0; j < numCombs / 2; ++j) {
-                combOutL += processComb(j, monoInput);
-                combOutR += processComb(j + numCombs / 2, monoInput);
+                combOutLowL += processComb(j, lowFreqL);
+                combOutLowR += processComb(j + numCombs / 2, lowFreqR);
+                
+                combOutHighL += processComb(j, highFreqDelayedL);
+                combOutHighR += processComb(j + numCombs / 2, highFreqDelayedR);
             }
+            
+            // Combine low and high frequency outputs
+            float combOutL = combOutLowL + combOutHighL;
+            float combOutR = combOutLowR + combOutHighR;
             
             // Process through allpass filters (full chain for both channels)
             float allpassOutL = combOutL;
@@ -193,6 +290,42 @@ private:
         return output;
     }
     
+    // Split signal into low and high frequency components
+    void splitFrequencies(float input, float& lowOut, float& highOut, int channel) {
+        // Simple one-pole low-pass filter
+        lowOut = (1.0f - lowpassCoeff) * input + lowpassCoeff * lowpassState[channel];
+        lowpassState[channel] = lowOut;
+        
+        // High frequencies are the remainder (input - low frequencies)
+        highOut = input - lowOut;
+    }
+    
+    // Add configurable delay to high frequencies
+    float processHighFreqDelay(float input, int channel) {
+        // Add the input to the delay line
+        highFreqDelayLines[channel][highFreqIndices[channel]] = input;
+        
+        // Get the delayed output
+        int delayLength = static_cast<int>(highFreqDelayAmount);
+        int readIndex = (highFreqIndices[channel] - delayLength + highFreqDelayLines[channel].size()) % highFreqDelayLines[channel].size();
+        float output = highFreqDelayLines[channel][readIndex];
+        
+        // Update index
+        highFreqIndices[channel] = (highFreqIndices[channel] + 1) % highFreqDelayLines[channel].size();
+        
+        return output;
+    }
+    
+    // Update high frequency delay parameters
+    void updateHighFreqDelay() {
+        // Calculate the crossover frequency coefficient (0.0 to 1.0 maps to ~100Hz to ~5000Hz)
+        float crossoverFreq = 100.0f * std::pow(50.0f, parameters.crossover);
+        lowpassCoeff = std::exp(-2.0f * M_PI * crossoverFreq / sampleRate);
+        
+        // Calculate the high frequency delay amount based on the parameter
+        highFreqDelayAmount = static_cast<float>(maxHighFreqDelay) * parameters.highFreqDelay;
+    }
+    
     // Parameters
     Parameters parameters;
     float sampleRate = 44100.0f;
@@ -215,11 +348,23 @@ private:
     
     // Allpass tuning values
     int allpassTuning[numAllPasses] = {556, 441, 341, 225};
+    
+    // High frequency delay
+    static const int numHighFreqDelays = 2; // For stereo
+    static const int maxHighFreqDelay = 500; // Maximum delay in samples at 44.1kHz
+    std::vector<float> highFreqDelayLines[numHighFreqDelays];
+    int highFreqIndices[numHighFreqDelays] = {0};
+    float highFreqDelayAmount = 0.0f;
+    
+    // Crossover filter
+    float lowpassCoeff = 0.0f;
+    float lowpassState[2] = {0.0f, 0.0f}; // For stereo
+    float highpassState[2] = {0.0f, 0.0f}; // For stereo
 };
 
 class SimpleAudioProcessor {
 public:
-    SimpleAudioProcessor() {
+    SimpleAudioProcessor() : spectrumAnalyzer(std::make_unique<SpectrumAnalyzer>()) {
         // Initialize the reverb with default settings
         reverb.setParameters(SimpleReverb::Parameters());
     }
@@ -228,6 +373,11 @@ public:
     void processBlock(float* buffer, int numSamples, int numChannels) {
         if (numChannels == 1) {
             reverb.processMono(buffer, numSamples);
+            
+            // Feed samples to the spectrum analyzer
+            for (int i = 0; i < numSamples; ++i) {
+                spectrumAnalyzer->pushSample(buffer[i]);
+            }
         } else if (numChannels == 2) {
             // Deinterleave stereo buffer (LRLRLR -> LLL, RRR)
             std::vector<float> leftChannel(numSamples);
@@ -245,8 +395,14 @@ public:
             for (int i = 0; i < numSamples; ++i) {
                 buffer[i * 2] = leftChannel[i];
                 buffer[i * 2 + 1] = rightChannel[i];
+                
+                // Feed the mixed signal to the spectrum analyzer
+                spectrumAnalyzer->pushSample((leftChannel[i] + rightChannel[i]) * 0.5f);
             }
         }
+        
+        // Update the spectrum analyzer
+        spectrumAnalyzer->update();
     }
     
     // Set reverb parameters
@@ -264,9 +420,15 @@ public:
         reverb.setSampleRate(sampleRate);
     }
     
+    // Get the spectrum analyzer
+    SpectrumAnalyzer* getSpectrumAnalyzer() {
+        return spectrumAnalyzer.get();
+    }
+    
 private:
     SimpleReverb reverb;
     SimpleReverb::Parameters parameters; // Current parameters
+    std::unique_ptr<SpectrumAnalyzer> spectrumAnalyzer;
 };
 
 // Simple function to generate test audio (a sine wave)
@@ -341,7 +503,77 @@ bool writeWavFile(const std::string& filename, const std::vector<float>& buffer,
     return true;
 }
 
+// Utility to clear screen
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void initTerminal() {
+    #ifdef _WIN32
+        // Enable virtual terminal processing for color support on Windows
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD dwMode = 0;
+        GetConsoleMode(hOut, &dwMode);
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+    #endif
+}
+
+// Draw a spectrum analyzer visualization in the terminal
+void drawSpectrumAnalyzer(SpectrumAnalyzer* analyzer, bool interactive = false) {
+    // Terminal dimensions (adjust as needed)
+    const int width = 80;
+    const int height = 20;
+    
+    // Buffer for the visualization
+    std::vector<std::string> buffer;
+    
+    // Update and draw the spectrum
+    analyzer->update();
+    analyzer->draw(buffer, width, height);
+    
+    // Display
+    clearScreen();
+    
+    // Print header
+    std::cout << "=== Real-Time Spectrum Analyzer with Fluid Wave Animations ===" << std::endl;
+    
+    // Print the visualization
+    for (const auto& line : buffer) {
+        std::cout << line << std::endl;
+    }
+    
+    // Print controls if in interactive mode
+    if (interactive) {
+        std::cout << std::endl;
+        std::cout << "Controls:" << std::endl;
+        std::cout << "  'M' - Change Animation Mode (current: ";
+        switch (analyzer->getAnimationMode()) {
+            case 0: std::cout << "Wave"; break;
+            case 1: std::cout << "Bars"; break;
+            case 2: std::cout << "Particles"; break;
+        }
+        std::cout << ")" << std::endl;
+        
+        std::cout << "  'C' - Change Color Scheme (current: ";
+        switch (analyzer->getColorScheme()) {
+            case 0: std::cout << "Blue"; break;
+            case 1: std::cout << "Purple"; break;
+            case 2: std::cout << "Green"; break;
+        }
+        std::cout << ")" << std::endl;
+        
+        std::cout << "  'Q' - Quit" << std::endl;
+    }
+}
+
 int main() {
+    // Initialize terminal for cross-platform color support
+    initTerminal();
     // Create our processor
     SimpleAudioProcessor processor;
     
@@ -357,12 +589,25 @@ int main() {
     params.dryLevel = 0.4f;    // Less dry signal
     params.width = 1.0f;       // Full stereo width
     params.freezeMode = 0.0f;  // No freeze
+    params.highFreqDelay = 0.4f; // Medium delay for high frequencies
+    params.crossover = 0.6f;   // Crossover at ~1.5kHz
     processor.setReverbParameters(params);
     
-    // Generate test signal (sine wave at 440 Hz)
+    // Generate test signals (different frequencies for more interesting visualization)
     int channels = 2; // Stereo
     float duration = 3.0f; // 3 seconds
-    std::vector<float> audioBuffer = generateSineWave(440.0f, sampleRate, duration, channels);
+    
+    // Mix multiple sine waves for a richer spectrum
+    std::vector<float> audioBuffer(static_cast<int>(sampleRate * duration) * channels, 0.0f);
+    std::vector<float> freqs = {110.0f, 220.0f, 440.0f, 880.0f, 1760.0f};
+    std::vector<float> amps = {0.3f, 0.25f, 0.2f, 0.15f, 0.1f};
+    
+    for (int i = 0; i < freqs.size(); ++i) {
+        auto sineWave = generateSineWave(freqs[i], sampleRate, duration, channels);
+        for (size_t j = 0; j < audioBuffer.size(); ++j) {
+            audioBuffer[j] += sineWave[j] * amps[i];
+        }
+    }
     
     // Create copy of the original signal for comparison
     std::vector<float> originalBuffer = audioBuffer;
@@ -379,6 +624,92 @@ int main() {
     std::cout << "Reverb processing complete. Files generated:" << std::endl;
     std::cout << "1. original.wav - The original sine wave" << std::endl;
     std::cout << "2. reverb_output.wav - The sine wave with reverb applied" << std::endl;
+    
+    // Enter interactive demo mode
+    std::cout << "\nStarting Real-Time Spectrum Analyzer Demo...\n";
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    
+    // Get the spectrum analyzer
+    auto analyzer = processor.getSpectrumAnalyzer();
+    
+    // Interactive mode flag
+    bool interactive = true;
+    bool running = true;
+    
+    // Main demo loop
+    while (running) {
+        // Draw the spectrum analyzer
+        drawSpectrumAnalyzer(analyzer, interactive);
+        
+        // Process chunk of audio continuously (repeating for visualization)
+        int blockSize = 1024;
+        static int position = 0;
+        
+        for (int i = 0; i < blockSize; ++i) {
+            int idx = (position + i) % (audioBuffer.size() / channels);
+            for (int c = 0; c < channels; ++c) {
+                // Feed samples to analyzer
+                if (c == 0) { // Just use left channel for analyzer
+                    analyzer->pushSample(audioBuffer[idx * channels + c]);
+                }
+            }
+        }
+        position = (position + blockSize) % (audioBuffer.size() / channels);
+        
+        // Handle user input in interactive mode
+        if (interactive) {
+            // Non-blocking input check (platform dependent)
+            #ifdef _WIN32
+                if (_kbhit()) {
+                    char key = tolower(_getch());
+                    if (key == 'q') {
+                        running = false;
+                    } else if (key == 'm') {
+                        analyzer->setAnimationMode((analyzer->getAnimationMode() + 1) % 3);
+                    } else if (key == 'c') {
+                        analyzer->setColorScheme((analyzer->getColorScheme() + 1) % 3);
+                    }
+                }
+            #else
+                // For Unix-like systems, implement non-blocking input with ncurses or similar approach
+                // This is a simplified approach - for production code, consider using ncurses or similar libraries
+                struct timeval tv;
+                fd_set fds;
+                tv.tv_sec = 0;
+                tv.tv_usec = 0;
+                FD_ZERO(&fds);
+                FD_SET(STDIN_FILENO, &fds);
+                
+                if (select(STDIN_FILENO+1, &fds, NULL, NULL, &tv) > 0) {
+                    char key;
+                    if (read(STDIN_FILENO, &key, 1) > 0) {
+                        key = tolower(key);
+                        if (key == 'q') {
+                            running = false;
+                        } else if (key == 'm') {
+                            analyzer->setAnimationMode((analyzer->getAnimationMode() + 1) % 3);
+                        } else if (key == 'c') {
+                            analyzer->setColorScheme((analyzer->getColorScheme() + 1) % 3);
+                        }
+                    }
+                }
+                
+                // Also allow for automatic mode changes for demos
+                static int counter = 0;
+                if (++counter % 100 == 0) {
+                    analyzer->setAnimationMode((analyzer->getAnimationMode() + 1) % 3);
+                }
+                if (counter % 200 == 0) {
+                    analyzer->setColorScheme((analyzer->getColorScheme() + 1) % 3);
+                }
+            #endif
+        }
+        
+        // Slow down the loop a bit
+        std::this_thread::sleep_for(std::chrono::milliseconds(33)); // ~30fps
+    }
+    
+    std::cout << "\nSpectrum Analyzer Demo complete.\n";
     
     return 0;
 }

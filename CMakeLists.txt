@@ -6,7 +6,13 @@ project(CustomReverbPlugin VERSION 1.0.0)
 add_executable(SimpleReverb SimpleReverb.cpp)
 target_compile_features(SimpleReverb PRIVATE cxx_std_14)
 target_include_directories(SimpleReverb PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(SimpleReverb PRIVATE m pthread)
+
+# Platform-specific libraries
+if(UNIX)
+    target_link_libraries(SimpleReverb PRIVATE m pthread)
+elseif(WIN32)
+    target_link_libraries(SimpleReverb PRIVATE winmm)
+endif()
 
 # Create simple GUI application
 add_executable(ReverbGUI GUI/ReverbGUI.cpp)
