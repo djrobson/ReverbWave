@@ -49,8 +49,8 @@ SpectrumAnalyzerComponent::~SpectrumAnalyzerComponent()
 
 void SpectrumAnalyzerComponent::paint(juce::Graphics& g)
 {
-    const auto width = getWidth();
-    const auto height = getHeight();
+    const auto width = static_cast<float>(getWidth());
+    const auto height = static_cast<float>(getHeight());
     
     // Draw background
     g.fillAll(juce::Colour(10, 15, 20));
