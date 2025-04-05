@@ -39,6 +39,10 @@ args = "Build ReverbVST"
 task = "workflow.run"
 args = "Check ReverbVST"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build ReverbVST All"
+
 [[workflows.workflow]]
 name = "Build SimpleReverb"
 author = "agent"
@@ -121,7 +125,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "rm -rf build && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make ReverbVST -j4"
+args = "cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make ReverbVST -j4"
 
 [[workflows.workflow]]
 name = "Check ReverbVST"
@@ -136,6 +140,20 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd build && ls -la ReverbVST_artefacts/"
+
+[[workflows.workflow]]
+name = "Build ReverbVST All"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make ReverbVST_All -j4"
 
 [deployment]
 run = ["sh", "-c", "mkdir -p build && cd build && cmake .. && cmake --build . && ./CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"]

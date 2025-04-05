@@ -28,7 +28,8 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     apvts(*this, nullptr, "Parameters", createParameters())
 {
     // Set up listeners for parameters
-    auto parameterList = {"roomSize", "damping", "wetLevel", "dryLevel", "width", "freezeMode", "highFreqDelay", "crossover"};
+    const std::array<const char*, 8> parameterList = {"roomSize", "damping", "wetLevel", "dryLevel", 
+                                                     "width", "freezeMode", "highFreqDelay", "crossover"};
     for (const auto& param : parameterList)
     {
         apvts.addParameterListener(param, this);
@@ -38,15 +39,16 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     updateReverbParameters();
     
     // Initialize FFT data
-    memset(fifo, 0, sizeof(fifo));
-    memset(fftData, 0, sizeof(fftData));
-    memset(scopeData, 0, sizeof(scopeData));
+    std::fill(std::begin(fifo), std::end(fifo), 0.0f);
+    std::fill(std::begin(fftData), std::end(fftData), 0.0f);
+    std::fill(std::begin(scopeData), std::end(scopeData), 0.0f);
 }
 
 CustomReverbAudioProcessor::~CustomReverbAudioProcessor()
 {
     // Remove parameter listeners
-    auto parameterList = {"roomSize", "damping", "wetLevel", "dryLevel", "width", "freezeMode", "highFreqDelay", "crossover"};
+    const std::array<const char*, 8> parameterList = {"roomSize", "damping", "wetLevel", "dryLevel", 
+                                                     "width", "freezeMode", "highFreqDelay", "crossover"};
     for (const auto& param : parameterList)
     {
         apvts.removeParameterListener(param, this);
@@ -131,7 +133,7 @@ void CustomReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     highFreqDelayReadPos = 0;
     highFreqDelayWritePos = 0;
     
-    // Initialize lowpass filter coefficient (cutoff around 2kHz)
+    // Initialize filter parameters
     updateHighFreqParameters();
 }
 
@@ -181,15 +183,18 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     float* channelDataL = buffer.getWritePointer(0);
     float* channelDataR = buffer.getWritePointer(totalNumInputChannels > 1 ? 1 : 0);
     
+    const bool isStereoInput = totalNumInputChannels > 1;
+    const int numSamples = buffer.getNumSamples();
+    
     // Process each sample
-    for (int i = 0; i < buffer.getNumSamples(); ++i)
+    for (int i = 0; i < numSamples; ++i)
     {
         // Split signal into low and high frequencies
         float lowL, highL;
         splitFrequencies(channelDataL[i], lowL, highL, lowpassStateL);
         
         float lowR, highR;
-        if (totalNumInputChannels > 1) 
+        if (isStereoInput) 
         {
             splitFrequencies(channelDataR[i], lowR, highR, lowpassStateR);
         }
@@ -206,21 +211,14 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         
         // Combine low and delayed high frequencies
         channelDataL[i] = lowL + delayedHighL;
-        if (totalNumInputChannels > 1) 
-        {
-            channelDataR[i] = lowR + delayedHighR;
-        }
-        else
-        {
-            channelDataR[i] = channelDataL[i];
-        }
+        channelDataR[i] = isStereoInput ? (lowR + delayedHighR) : channelDataL[i];
 
         // Input to FFT analyzer (mixing down to mono)
         pushNextSampleIntoFifo((channelDataL[i] + channelDataR[i]) * 0.5f);
     }
     
     // Apply standard reverb processing
-    reverb.processStereo(channelDataL, channelDataR, buffer.getNumSamples());
+    reverb.processStereo(channelDataL, channelDataR, numSamples);
     
     // Check if we need to update the spectrum
     if (nextFFTBlockReady && spectrumAnalyzer != nullptr)
@@ -234,7 +232,6 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 void CustomReverbAudioProcessor::splitFrequencies(float input, float& lowOut, float& highOut, float& state)
 {
     // Simple first-order lowpass filter
-    // lowpass = a * input + (1 - a) * lowpass_prev
     lowOut = lowpassCoeff * input + (1.0f - lowpassCoeff) * state;
     state = lowOut;
     
@@ -263,16 +260,12 @@ void CustomReverbAudioProcessor::updateHighFreqParameters()
     float crossoverFreq = 500.0f * std::pow(6.0f, customParams.crossover);
     
     // Simple RC lowpass coefficient calculation
-    // where a = dt / (RC + dt) and RC = 1 / (2 * pi * cutoff_freq)
     float sampleRate = (float)getSampleRate();
     if (sampleRate > 0)
     {
         lowpassCoeff = 1.0f / (1.0f + 2.0f * juce::MathConstants<float>::pi * crossoverFreq / sampleRate);
-    }
-    
-    // Update delay time (range from 0 to 20ms)
-    if (sampleRate > 0)
-    {
+        
+        // Update delay time (range from 0 to 20ms)
         int delaySamples = (int)(sampleRate * 0.02f * customParams.highFreqDelay);
         highFreqDelayAmount = delaySamples;
         
@@ -284,7 +277,7 @@ void CustomReverbAudioProcessor::updateHighFreqParameters()
 //==============================================================================
 bool CustomReverbAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* CustomReverbAudioProcessor::createEditor()
@@ -305,13 +298,10 @@ void CustomReverbAudioProcessor::setStateInformation (const void* data, int size
 {
     // Restore state information
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
-    if (xmlState.get() != nullptr)
+    if (xmlState.get() != nullptr && xmlState->hasTagName(apvts.state.getType()))
     {
-        if (xmlState->hasTagName(apvts.state.getType()))
-        {
-            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
-            updateReverbParameters();
-        }
+        apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        updateReverbParameters();
     }
 }
 
@@ -330,14 +320,13 @@ void CustomReverbAudioProcessor::parameterChanged(const juce::String& parameterI
         customParams.width = newValue;
     else if (parameterID == "freezeMode")
         customParams.freezeMode = newValue;
-    else if (parameterID == "highFreqDelay")
+    else if (parameterID == "highFreqDelay" || parameterID == "crossover")
     {
-        customParams.highFreqDelay = newValue;
-        updateHighFreqParameters();
-    }
-    else if (parameterID == "crossover")
-    {
-        customParams.crossover = newValue;
+        if (parameterID == "highFreqDelay")
+            customParams.highFreqDelay = newValue;
+        else
+            customParams.crossover = newValue;
+            
         updateHighFreqParameters();
     }
     
@@ -409,16 +398,14 @@ void CustomReverbAudioProcessor::calculateFrequencySpectrum()
     
     // Find the range of values produced, so we can scale the result
     auto maxLevel = juce::FloatVectorOperations::findMinAndMax(fftData, fftSize / 2);
+    auto maxValue = juce::jmax(maxLevel.getEnd(), 1e-5f);
     
-    // Convert the FFT data into a logarithmic spectrum with a reasonable 
-    // range for the visual display
+    // Convert FFT data to logarithmic spectrum for visualization
     for (int i = 0; i < scopeSize; ++i)
     {
         auto skewedProportionX = 1.0f - std::exp(std::log(1.0f - (float)i / (float)scopeSize) * 0.2f);
         auto fftDataIndex = juce::jlimit(0, fftSize / 2, (int)(skewedProportionX * (float)fftSize * 0.5f));
-        auto level = juce::jmap(fftData[fftDataIndex], 0.0f, juce::jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
-        
-        scopeData[i] = level;
+        scopeData[i] = juce::jmap(fftData[fftDataIndex], 0.0f, maxValue, 0.0f, 1.0f);
     }
 }
 

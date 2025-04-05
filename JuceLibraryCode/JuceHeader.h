@@ -41,12 +41,15 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_extra/juce_gui_extra.h>
 
+// Include our custom spectrum analyzer
+#include "../SpectrumAnalyzer.h"
+
 // Set to use namespace with using or include with juce:: prefix
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "CustomReverbPlugin";
-    const char* const  companyName    = "Audio Developer";
+    const char* const  projectName    = "SimpleReverb VST";
+    const char* const  companyName    = "SimpleReverb";
     const char* const  versionString  = "1.0.0";
     const int          versionNumber  = 0x10000;
 }

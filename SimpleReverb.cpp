@@ -397,7 +397,7 @@ public:
     
     // Get the current parameters
     SimpleReverb::Parameters getReverbParameters() const {
-        return parameters;
+        return reverb.parameters;
     }
     
     // Set sample rate
