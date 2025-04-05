@@ -1,3 +1,0 @@
-/home/runner/workspace/build-vst/CMakeFiles/CMakeScratch/TryCompile-sJsgDv/CMakeFiles/cmTC_a3503.dir
-/home/runner/workspace/build-vst/CMakeFiles/CMakeScratch/TryCompile-sJsgDv/CMakeFiles/edit_cache.dir
-/home/runner/workspace/build-vst/CMakeFiles/CMakeScratch/TryCompile-sJsgDv/CMakeFiles/rebuild_cache.dir

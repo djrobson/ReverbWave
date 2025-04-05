@@ -118,6 +118,7 @@ private:
     juce::Label widthLabel;
     juce::Label highFreqDelayLabel;
     juce::Label crossoverLabel;
+    juce::Label harmDetuneAmountLabel;
     juce::Label presetLabel;
     juce::Label spectrumLabel;
     
@@ -129,6 +130,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> widthAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highFreqDelayAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> crossoverAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> harmDetuneAmountAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> freezeModeAttachment;
     
     // Custom LookAndFeel for the sliders

@@ -1,0 +1,13 @@
+
+    // Harmonic Detune Amount Slider
+    harmDetuneAmountSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    harmDetuneAmountSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    harmDetuneAmountSlider.setLookAndFeel(&customLookAndFeel);
+    addAndMakeVisible(harmDetuneAmountSlider);
+    
+    harmDetuneAmountLabel.setText("Harmonic Detune", juce::dontSendNotification);
+    harmDetuneAmountLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(harmDetuneAmountLabel);
+    
+    harmDetuneAmountAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
+        apvts, "harmDetuneAmount", harmDetuneAmountSlider));

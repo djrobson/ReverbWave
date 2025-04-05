@@ -56,12 +56,11 @@ public:
         std::cout << "5. Special FX" << std::endl;
         std::cout << "6. Bright Chamber" << std::endl;
         std::cout << "7. Dark Space" << std::endl;
-        cout << "8. Stereo Enhance	";
-
+        std::cout << "8. Stereo Enhance" << std::endl;
     }
     
     int getPresetChoice() {
-        std::cout << "Select a preset (1-7) or 0 to keep current settings: ";
+        std::cout << "Select a preset (1-8) or 0 to keep current settings: ";
         int choice;
         std::cin >> choice;
         return choice;
@@ -69,7 +68,7 @@ public:
     
     void applyPreset(int preset, float& roomSize, float& damping, float& wetLevel, 
                      float& dryLevel, float& width, float& freezeMode,
-                     floatfloat& highFreqDelay, floatfloat& crossover) crossover, floatfloat& crossover) harmDetuneAmount) highFreqDelay, floatfloat& highFreqDelay, floatfloat& crossover) crossover, floatfloat& crossover) harmDetuneAmount) crossover, floatfloat& highFreqDelay, floatfloat& crossover) crossover, floatfloat& crossover) harmDetuneAmount) harmDetuneAmount) {
+                     float& highFreqDelay, float& crossover, float& harmDetuneAmount) {
         switch(preset) {
             case 1: // Small Room
                 roomSize = 0.2f;
@@ -144,8 +143,6 @@ public:
                 break;
                 
             case 7: // Dark Space
-
-            case 8: // Stereo Enhance\n                roomSize = 0.6f;\n                damping = 0.4f;\n                wetLevel = 0.5f;\n                dryLevel = 0.6f;\n                width = 1.0f;\n                freezeMode = 0.0f;\n                highFreqDelay = 0.4f;\n                crossover = 0.5f;\n                harmDetuneAmount = 0.8f; // Strong harmonic detuning for dramatic stereo width\n                break;
                 roomSize = 0.7f;
                 damping = 0.7f;
                 wetLevel = 0.5f;
@@ -155,6 +152,18 @@ public:
                 highFreqDelay = 0.7f; // More high freq delay for a darker sound
                 crossover = 0.3f;
                 harmDetuneAmount = 0.0f;     // Low crossover point
+                break;
+                
+            case 8: // Stereo Enhance
+                roomSize = 0.6f;
+                damping = 0.4f;
+                wetLevel = 0.5f;
+                dryLevel = 0.6f;
+                width = 1.0f;
+                freezeMode = 0.0f;
+                highFreqDelay = 0.4f;
+                crossover = 0.5f;
+                harmDetuneAmount = 0.8f; // Strong harmonic detuning for dramatic stereo width
                 break;
                 
             default:
@@ -178,7 +187,6 @@ int main() {
     float highFreqDelay = 0.3f;
     float crossover = 0.5f;
     float harmDetuneAmount = 0.0f;
-                harmDetuneAmount = 0.0f;
     
     // Show current settings
     gui.showReverbControls(roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover, harmDetuneAmount);
@@ -189,7 +197,7 @@ int main() {
     // Get user choice
     int choice = gui.getPresetChoice();
     
-    if (choice >= 1 && choice <= 7) {
+    if (choice >= 1 && choice <= 8) {
         // Apply the selected preset
         gui.applyPreset(choice, roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover, harmDetuneAmount);
         

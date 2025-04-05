@@ -1,1 +1,0 @@
-/nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/gcc CMakeFiles/cmTC_a3503.dir/src.c.o -o cmTC_a3503

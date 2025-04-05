@@ -1,0 +1,11 @@
+        case 7: // Harmonic Detuner
+            apvts.getParameter("roomSize")->setValueNotifyingHost(0.4f);
+            apvts.getParameter("damping")->setValueNotifyingHost(0.4f);
+            apvts.getParameter("wetLevel")->setValueNotifyingHost(0.3f);
+            apvts.getParameter("dryLevel")->setValueNotifyingHost(0.7f);
+            apvts.getParameter("width")->setValueNotifyingHost(0.7f);
+            apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.3f);
+            apvts.getParameter("crossover")->setValueNotifyingHost(0.6f);
+            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.7f);
+            break;

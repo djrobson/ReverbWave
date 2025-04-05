@@ -147,7 +147,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd build && ls -la ReverbVST_artefacts/"
+args = "cd build-vst && ls -la ReverbVST_artefacts/Release/VST3/"
 
 [[workflows.workflow]]
 name = "Build ReverbVST All"
