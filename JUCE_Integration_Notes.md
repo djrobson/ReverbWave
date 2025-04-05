@@ -58,7 +58,3 @@ While we've moved away from JUCE for now, future possibilities include:
 3. **Alternative Frameworks**:
    - Exploring lighter GUI frameworks like IMGUI or SDL
    - These could provide graphical interfaces with fewer dependencies
-
-## Conclusion
-
-The decision to move away from JUCE has resulted in a more streamlined, independent application that maintains all the core functionality while being easier to build and run across different platforms. The standalone C++ implementation provides excellent performance and cross-platform compatibility without the complexity of a full plugin framework.
