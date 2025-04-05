@@ -1,5 +1,6 @@
 # Build output directories
 build/
+JuceLibraryCode/
 *.o
 *.exe
 *.out
