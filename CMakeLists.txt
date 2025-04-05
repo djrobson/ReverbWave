@@ -22,9 +22,6 @@ add_executable(ReverbGUI GUI/ReverbGUI.cpp harmonic_detuning.cpp)
 target_compile_features(ReverbGUI PRIVATE cxx_std_14)
 target_include_directories(ReverbGUI PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Create a sample integration demo
-add_executable(IntegrationDemo Integration.cpp)
-target_compile_features(IntegrationDemo PRIVATE cxx_std_14)
 
 # JUCE VST Plugin Configuration
 # ------------------------------------------------------------------------------

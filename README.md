@@ -8,8 +8,7 @@ The project consists of four main components:
 
 1. **SimpleReverb**: Core audio processor with spectrum analyzer visualization
 2. **ReverbGUI**: Text-based interface for adjusting reverb parameters
-3. **IntegrationDemo**: Demonstration of reverb integration with a plugin system
-4. **ReverbVST**: VST3 and standalone audio plugin implementation using JUCE
+3. **ReverbVST**: VST3 and standalone audio plugin implementation using JUCE
 
 ## Features
 
@@ -126,16 +125,6 @@ This will create:
 
 # Windows
 .\build\Release\ReverbGUI.exe
-```
-
-#### IntegrationDemo
-
-```bash
-# Linux/Unix
-./build/IntegrationDemo
-
-# Windows
-.\build\Release\IntegrationDemo.exe
 ```
 
 #### ReverbVST (standalone plugin)

@@ -57,7 +57,7 @@
     #include <fcntl.h>
 #endif
 
- * 
+ /* 
  * Key Features:
  * - Realistic room reverberation with adjustable parameters
  * - Stereo width enhancement through harmonic detuning

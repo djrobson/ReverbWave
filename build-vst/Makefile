@@ -189,19 +189,6 @@ ReverbGUI/fast:
 .PHONY : ReverbGUI/fast
 
 #=============================================================================
-# Target rules for targets named IntegrationDemo
-
-# Build rule for target.
-IntegrationDemo: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 IntegrationDemo
-.PHONY : IntegrationDemo
-
-# fast build rule for target.
-IntegrationDemo/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/IntegrationDemo.dir/build.make CMakeFiles/IntegrationDemo.dir/build
-.PHONY : IntegrationDemo/fast
-
-#=============================================================================
 # Target rules for targets named ReverbVST
 
 # Build rule for target.

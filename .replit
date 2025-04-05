@@ -27,9 +27,6 @@ args = "Run SimpleReverb"
 task = "workflow.run"
 args = "Run ReverbGUI Demo"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Run IntegrationDemo"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -107,9 +104,6 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "cd build && ./ReverbGUI"
 
-[[workflows.workflow]]
-name = "Run IntegrationDemo"
-author = "agent"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
@@ -117,9 +111,6 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd build && ./IntegrationDemo"
 
 [[workflows.workflow]]
 name = "Build ReverbVST"
