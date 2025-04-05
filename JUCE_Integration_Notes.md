@@ -43,11 +43,6 @@ The project can be used in the following ways:
    cd build && ./ReverbGUI
    ```
 
-3. See how the code integrates with a plugin-like architecture:
-   ```
-   cd build && ./IntegrationDemo
-   ```
-
 ## Future Possibilities for JUCE Integration
 
 While we've moved away from JUCE for now, future possibilities include:

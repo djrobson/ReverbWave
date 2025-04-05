@@ -1,6 +1,6 @@
 # Project setup
 cmake_minimum_required(VERSION 3.15)
-project(SimpleReverbProject VERSION 1.0.0)
+project(ReverbWave VERSION 1.0.0)
 
 # Include the standalone applications
 # ------------------------------------------------------------------------------

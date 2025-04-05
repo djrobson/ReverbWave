@@ -10,7 +10,6 @@ The project consists of three main executables:
 
 1. **SimpleReverb**: The core reverb processing application with interactive spectrum analyzer
 2. **ReverbGUI**: A text-based interface for adjusting reverb parameters
-3. **IntegrationDemo**: A demonstration of how the reverb engine can be integrated with other audio systems
 
 ## Features
 

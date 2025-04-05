@@ -20,5 +20,3 @@ build/
 .vscode/
 .idea/
 *.swp
-build/CMakeFiles/CMakeConfigureLog.yaml
-build/CMakeFiles/CMakeConfigureLog.yaml

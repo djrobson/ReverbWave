@@ -166,7 +166,6 @@ The implementation includes:
 - `SimpleReverb.cpp`: Main implementation with reverb algorithm and visualization
 - `SpectrumAnalyzer.h/cpp`: FFT analysis and fluid wave animations
 - `GUI/ReverbGUI.cpp`: Text-based interface for reverb parameters
-- `Integration.cpp`: Demonstration of plugin system integration
 - `Source/PluginProcessor.h/cpp`: JUCE VST plugin processor implementation
 - `Source/PluginEditor.h/cpp`: JUCE VST plugin editor implementation
 - `CMakeLists.txt`: Build configuration for cross-platform compatibility
