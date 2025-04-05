@@ -8,6 +8,8 @@ build/
 *.dll
 *.lib
 *.dylib
+juce_plugin_build.cmake
+CustomReverbPlugin.jucer
 
 # Backup files
 *.bak
