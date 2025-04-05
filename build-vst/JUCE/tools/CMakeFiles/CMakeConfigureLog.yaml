@@ -1902,3 +1902,38 @@ events:
         
       exitCode: 2
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "extras/Build/CMake/JUCECheckAtomic.cmake:73 (try_compile)"
+      - "extras/Build/CMake/JUCECheckAtomic.cmake:128 (_juce_create_atomic_target)"
+      - "extras/Build/CMake/JUCEModuleSupport.cmake:57 (include)"
+      - "CMakeLists.txt:50 (include)"
+    directories:
+      source: "/home/runner/workspace/build-vst/JUCE/tools/check_atomic_dir_1pBpGGIQ3YXj2z0k/CMakeFiles/CMakeTmp"
+      binary: "/home/runner/workspace/build-vst/JUCE/tools/check_atomic_dir_1pBpGGIQ3YXj2z0k/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "compile_result"
+      cached: true
+      stdout: |
+        Change Dir: '/home/runner/workspace/build-vst/JUCE/tools/check_atomic_dir_1pBpGGIQ3YXj2z0k/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /nix/store/q1nssraba326p2kp6627hldd2bhg254c-cmake-3.29.2/bin/cmake -E env VERBOSE=1 /nix/store/cdzpn0rdq810aknww3w9fy3wmw9ixr66-gnumake-4.4.1/bin/make -f Makefile cmTC_f7b35/fast
+        /nix/store/cdzpn0rdq810aknww3w9fy3wmw9ixr66-gnumake-4.4.1/bin/make  -f CMakeFiles/cmTC_f7b35.dir/build.make CMakeFiles/cmTC_f7b35.dir/build
+        make[1]: Entering directory '/home/runner/workspace/build-vst/JUCE/tools/check_atomic_dir_1pBpGGIQ3YXj2z0k/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_f7b35.dir/check_atomic_nQbkky5ajgsF8mmK.cpp.o
+        /nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++   -std=c++17 -o CMakeFiles/cmTC_f7b35.dir/check_atomic_nQbkky5ajgsF8mmK.cpp.o -c /home/runner/workspace/build-vst/JUCE/tools/check_atomic_nQbkky5ajgsF8mmK.cpp
+        Linking CXX executable cmTC_f7b35
+        /nix/store/q1nssraba326p2kp6627hldd2bhg254c-cmake-3.29.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f7b35.dir/link.txt --verbose=1
+        /nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++ CMakeFiles/cmTC_f7b35.dir/check_atomic_nQbkky5ajgsF8mmK.cpp.o -o cmTC_f7b35
+        make[1]: Leaving directory '/home/runner/workspace/build-vst/JUCE/tools/check_atomic_dir_1pBpGGIQ3YXj2z0k/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+...

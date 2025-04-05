@@ -89,6 +89,7 @@ private:
         float freezeMode = 0.0f;
         float highFreqDelay = 0.3f;
         float crossover = 0.5f;
+        float harmDetuneAmount = 0.0f;
     };
     
     // Reverb processor and parameters
@@ -116,8 +117,18 @@ private:
     float lowpassStateL = 0.0f;
     float lowpassStateR = 0.0f;
     
+    // Harmonic detuning buffers
+    static const int maxHarmonicFilterSize = 50;
+    std::vector<float> oddHarmonicBufferL;
+    std::vector<float> evenHarmonicBufferR;
+    int oddHarmonicPos = 0;
+    int evenHarmonicPos = 0;
+    
     // Crossover filter to split frequencies
     void splitFrequencies(float input, float& lowOut, float& highOut, float& state);
+    
+    // Process harmonic detuning
+    void processHarmonicDetuning(float& leftSample, float& rightSample);
     
     // Process high frequency delay
     float processHighFreqDelay(float input, std::vector<float>& buffer);

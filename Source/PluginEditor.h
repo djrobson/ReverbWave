@@ -101,6 +101,7 @@ private:
     juce::Slider widthSlider;
     juce::Slider highFreqDelaySlider;
     juce::Slider crossoverSlider;
+    juce::Slider harmDetuneAmountSlider;
     juce::ToggleButton freezeModeButton;
     juce::ComboBox presetSelector;
     

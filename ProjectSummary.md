@@ -29,6 +29,7 @@ This project implements a feature-rich audio reverb effect with multiple impleme
   - Freeze Mode (0.0 to 1.0)
   - High Frequency Delay (0.0 to 1.0)
   - Crossover (0.0 to 1.0)
+  - Harmonic Detuning Amount (0.0 to 1.0)
 
 ### ReverbVST (Plugin Version)
 - Complete VST3 plugin using the JUCE framework
@@ -42,6 +43,7 @@ This project implements a feature-rich audio reverb effect with multiple impleme
 - Adjustable crossover frequency
 - Variable high-frequency delay for greater sound depth
 - Stereo width control for spatial enhancement
+- Harmonic detuning for enhanced stereo image and tonal complexity
 - Freeze mode for infinite reverb tails
 
 ## Spectrum Analyzer Features

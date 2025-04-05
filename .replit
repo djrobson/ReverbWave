@@ -189,7 +189,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make ReverbVST -j4"
+args = "mkdir -p build-vst && cd build-vst && cmake .. -DCMAKE_BUILD_TYPE=Release && cmake --build . --target ReverbVST -j4"
 
 [deployment]
 run = ["sh", "-c", "mkdir -p build && cd build && cmake .. && cmake --build . && ./CustomReverbPlugin_artefacts/Standalone/CustomReverbPlugin"]

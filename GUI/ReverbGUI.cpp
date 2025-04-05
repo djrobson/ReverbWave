@@ -33,7 +33,7 @@ class ReverbGUI {
 public:
     void showReverbControls(float roomSize, float damping, float wetLevel, 
                            float dryLevel, float width, float freezeMode,
-                           float highFreqDelay, float crossover) {
+                           float highFreqDelay, float crossover, float harmDetuneAmount) {
         std::cout << "===== Reverb Controls =====" << std::endl;
         printParameter("Room Size", roomSize);
         printParameter("Damping", damping);
@@ -43,6 +43,7 @@ public:
         printParameter("Freeze Mode", freezeMode);
         printParameter("High Freq Delay", highFreqDelay);
         printParameter("Crossover", crossover);
+        printParameter("Harmonic Detune", harmDetuneAmount);
         std::cout << "===========================" << std::endl;
     }
     
@@ -55,6 +56,8 @@ public:
         std::cout << "5. Special FX" << std::endl;
         std::cout << "6. Bright Chamber" << std::endl;
         std::cout << "7. Dark Space" << std::endl;
+        cout << "8. Stereo Enhance	";
+
     }
     
     int getPresetChoice() {
@@ -66,7 +69,7 @@ public:
     
     void applyPreset(int preset, float& roomSize, float& damping, float& wetLevel, 
                      float& dryLevel, float& width, float& freezeMode,
-                     float& highFreqDelay, float& crossover) {
+                     floatfloat& highFreqDelay, floatfloat& crossover) crossover, floatfloat& crossover) harmDetuneAmount) highFreqDelay, floatfloat& highFreqDelay, floatfloat& crossover) crossover, floatfloat& crossover) harmDetuneAmount) crossover, floatfloat& highFreqDelay, floatfloat& crossover) crossover, floatfloat& crossover) harmDetuneAmount) harmDetuneAmount) {
         switch(preset) {
             case 1: // Small Room
                 roomSize = 0.2f;
@@ -77,6 +80,7 @@ public:
                 freezeMode = 0.0f;
                 highFreqDelay = 0.2f;
                 crossover = 0.4f;
+                harmDetuneAmount = 0.0f;
                 break;
                 
             case 2: // Medium Room
@@ -88,6 +92,7 @@ public:
                 freezeMode = 0.0f;
                 highFreqDelay = 0.3f;
                 crossover = 0.5f;
+                harmDetuneAmount = 0.0f;
                 break;
                 
             case 3: // Large Hall
@@ -99,6 +104,7 @@ public:
                 freezeMode = 0.0f;
                 highFreqDelay = 0.4f;
                 crossover = 0.6f;
+                harmDetuneAmount = 0.0f;
                 break;
                 
             case 4: // Cathedral
@@ -110,6 +116,7 @@ public:
                 freezeMode = 0.0f;
                 highFreqDelay = 0.5f;
                 crossover = 0.7f;
+                harmDetuneAmount = 0.0f;
                 break;
                 
             case 5: // Special FX
@@ -121,6 +128,7 @@ public:
                 freezeMode = 0.5f;
                 highFreqDelay = 0.8f;
                 crossover = 0.3f;
+                harmDetuneAmount = 0.0f;
                 break;
                 
             case 6: // Bright Chamber
@@ -131,10 +139,13 @@ public:
                 width = 0.9f;
                 freezeMode = 0.0f;
                 highFreqDelay = 0.1f; // Very little high freq delay for brightness
-                crossover = 0.7f;     // High crossover point
+                crossover = 0.7f;
+                harmDetuneAmount = 0.0f;     // High crossover point
                 break;
                 
             case 7: // Dark Space
+
+            case 8: // Stereo Enhance\n                roomSize = 0.6f;\n                damping = 0.4f;\n                wetLevel = 0.5f;\n                dryLevel = 0.6f;\n                width = 1.0f;\n                freezeMode = 0.0f;\n                highFreqDelay = 0.4f;\n                crossover = 0.5f;\n                harmDetuneAmount = 0.8f; // Strong harmonic detuning for dramatic stereo width\n                break;
                 roomSize = 0.7f;
                 damping = 0.7f;
                 wetLevel = 0.5f;
@@ -142,7 +153,8 @@ public:
                 width = 0.8f;
                 freezeMode = 0.0f;
                 highFreqDelay = 0.7f; // More high freq delay for a darker sound
-                crossover = 0.3f;     // Low crossover point
+                crossover = 0.3f;
+                harmDetuneAmount = 0.0f;     // Low crossover point
                 break;
                 
             default:
@@ -165,9 +177,11 @@ int main() {
     float freezeMode = 0.0f;
     float highFreqDelay = 0.3f;
     float crossover = 0.5f;
+    float harmDetuneAmount = 0.0f;
+                harmDetuneAmount = 0.0f;
     
     // Show current settings
-    gui.showReverbControls(roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover);
+    gui.showReverbControls(roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover, harmDetuneAmount);
     
     // Show presets
     gui.showPresets();
@@ -177,11 +191,11 @@ int main() {
     
     if (choice >= 1 && choice <= 7) {
         // Apply the selected preset
-        gui.applyPreset(choice, roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover);
+        gui.applyPreset(choice, roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover, harmDetuneAmount);
         
         // Show the updated settings
         std::cout << "\nApplied preset. New settings:" << std::endl;
-        gui.showReverbControls(roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover);
+        gui.showReverbControls(roomSize, damping, wetLevel, dryLevel, width, freezeMode, highFreqDelay, crossover, harmDetuneAmount);
     } else {
         std::cout << "Keeping current settings." << std::endl;
     }

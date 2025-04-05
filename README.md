@@ -28,6 +28,8 @@ The project consists of four main components:
   - Freeze Mode: For infinite reverb effects
   - High Frequency Delay: Adds natural delay to higher frequencies
   - Crossover: Sets the frequency threshold for high frequency processing
+  - Harmonic Detuning: Creates stereo enhancement by selectively detuning odd harmonics in the left channel and even harmonics in the right channel
+  - Harmonic Detuning: Creates stereo enhancement by selectively detuning odd harmonics in the left channel and even harmonics in the right channel
 
 ### Real-Time Spectrum Analyzer
 
@@ -163,6 +165,7 @@ The reverb engine includes carefully designed presets for various applications:
 The implementation includes:
 
 - Custom FFT for frequency analysis
+- Harmonic detuning for enhanced stereo imaging
 - Physics-based fluid wave animations
 - Platform-specific optimizations for terminal handling
 - Cross-platform keyboard input system
