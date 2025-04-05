@@ -120,31 +120,14 @@ The implementation includes:
 
 - Custom FFT for frequency analysis
 - Harmonic detuning for enhanced stereo imaging
-- Physics-based fluid wave animations
-- Platform-specific optimizations for terminal handling
-- Cross-platform keyboard input system
 - CMake build system with automatic dependency resolution
 - JUCE framework integration for VST plugin
 
 ## Project Structure
 
 - `SimpleReverb.cpp`: Main implementation with reverb algorithm and visualization
-- `SpectrumAnalyzer.h/cpp`: FFT analysis and fluid wave animations
-- `GUI/ReverbGUI.cpp`: Text-based interface for reverb parameters
+- `Source/SpectrumAnalyzer.h/cpp`: FFT analysis and fluid wave animations
 - `Source/PluginProcessor.h/cpp`: JUCE VST plugin processor implementation
 - `Source/PluginEditor.h/cpp`: JUCE VST plugin editor implementation
 - `CMakeLists.txt`: Build configuration for cross-platform compatibility
 
-## Documentation
-
-Additional documentation is available in the project files:
-
-- `SimplifiedReverbOverview.md`: Concise project overview
-- `CrossPlatformCompatibility.md`: Details on cross-platform support
-- `WindowsCompatibility.md`: Windows-specific implementation notes
-- `WindowsCompatibilityImplementation.md`: Detailed implementation guide for Windows
-- `JUCE_Integration_Notes.md`: Notes on JUCE integration for VST plugin
-
-## JUCE Integration
-
-The project supports JUCE integration for VST plugin creation. The JUCE framework is used as a submodule to provide VST3 and standalone formats, while maintaining compatibility with the original standalone applications.
