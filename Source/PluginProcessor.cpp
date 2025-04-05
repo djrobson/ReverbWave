@@ -49,7 +49,7 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     oddHarmonicBufferL.resize(maxHarmonicFilterSize, 0.0f);
     evenHarmonicBufferR.resize(maxHarmonicFilterSize, 0.0f);
     
-    // Set default reverb parameters
+    // Set up default reverb parameters
     reverbParams.roomSize = 0.5f;
     reverbParams.damping = 0.5f;
     reverbParams.wetLevel = 0.33f;
@@ -57,162 +57,117 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     reverbParams.width = 1.0f;
     reverbParams.freezeMode = 0.0f;
     
-    // Apply to reverb processor
-    reverb.setParameters(reverbParams);
+    // Initialize crossover frequency
+    crossoverFrequency = 2000.0f;
+    highFreqDelayTime = 0.1f; // 100ms default
+    highFreqDelayMix = 0.3f;
     
-    // Add parameter listeners
-    auto parameterNames = {"roomSize", "damping", "wetLevel", "dryLevel", 
-                           "width", "freezeMode", "highFreqDelay", "crossover", "harmDetuneAmount"};
+    // Initialize harmonic detuning
+    harmonicDetuningAmount = 0.5f;
     
-    for (auto& name : parameterNames)
-        apvts.addParameterListener(name, this);
+    // Setup spectrum analyzer
+    fftSize = 1 << fftOrder;
+    fifo.resize(fftSize, 0.0f);
+    fftData = new float[2 * fftSize];
+    scopeData = new float[scopeSize];
+    std::fill(fftData, fftData + 2 * fftSize, 0.0f);
+    std::fill(scopeData, scopeData + scopeSize, 0.0f);
+    fifoIndex = 0;
+    nextFFTBlockReady = false;
+    
+    // Initialize the reverb processors
+    leftReverb.reset();
+    rightReverb.reset();
+    leftReverb.setParameters(reverbParams);
+    rightReverb.setParameters(reverbParams);
+    
+    // Initialize parameter listeners
+    apvts.addParameterListener("roomSize", this);
+    apvts.addParameterListener("damping", this);
+    apvts.addParameterListener("wetLevel", this);
+    apvts.addParameterListener("dryLevel", this);
+    apvts.addParameterListener("width", this);
+    apvts.addParameterListener("freezeMode", this);
+    apvts.addParameterListener("crossoverFreq", this);
+    apvts.addParameterListener("highFreqDelay", this);
+    apvts.addParameterListener("highFreqMix", this);
+    apvts.addParameterListener("harmonicDetune", this);
 }
 
 CustomReverbAudioProcessor::~CustomReverbAudioProcessor()
 {
-    // Remove parameter listeners to avoid callbacks after destruction
-    auto parameterNames = {"roomSize", "damping", "wetLevel", "dryLevel", 
-                           "width", "freezeMode", "highFreqDelay", "crossover", "harmDetuneAmount"};
+    // Clean up memory
+    delete[] fftData;
+    delete[] scopeData;
     
-    for (auto& name : parameterNames)
-        apvts.removeParameterListener(name, this);
+    // Remove parameter listeners
+    apvts.removeParameterListener("roomSize", this);
+    apvts.removeParameterListener("damping", this);
+    apvts.removeParameterListener("wetLevel", this);
+    apvts.removeParameterListener("dryLevel", this);
+    apvts.removeParameterListener("width", this);
+    apvts.removeParameterListener("freezeMode", this);
+    apvts.removeParameterListener("crossoverFreq", this);
+    apvts.removeParameterListener("highFreqDelay", this);
+    apvts.removeParameterListener("highFreqMix", this);
+    apvts.removeParameterListener("harmonicDetune", this);
 }
 
 //==============================================================================
-juce::AudioProcessorValueTreeState::ParameterLayout CustomReverbAudioProcessor::createParameters()
+void CustomReverbAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
-    
-    // Standard reverb parameters
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("damping", "Damping", 0.0f, 1.0f, 0.5f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("wetLevel", "Wet Level", 0.0f, 1.0f, 0.33f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("dryLevel", "Dry Level", 0.0f, 1.0f, 0.4f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("width", "Width", 0.0f, 1.0f, 1.0f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("freezeMode", "Freeze Mode", 0.0f, 1.0f, 0.0f));
-    
-    // Custom parameters for high frequency processing
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("highFreqDelay", "High Freq Delay", 0.0f, 1.0f, 0.3f));
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("crossover", "Crossover", 0.0f, 1.0f, 0.5f));
-    
-    // Harmonic detuning parameter
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("harmDetuneAmount", "Harmonic Detune", 0.0f, 1.0f, 0.0f));
-    
-    return { parameters.begin(), parameters.end() };
-}
-
-void CustomReverbAudioProcessor::parameterChanged(const juce::String &parameterID, float newValue)
-{
-    // Update parameter in the custom params struct
+    // Update parameters based on changes in the GUI or automation
     if (parameterID == "roomSize")
-        customParams.roomSize = newValue;
+        reverbParams.roomSize = newValue;
     else if (parameterID == "damping")
-        customParams.damping = newValue;
+        reverbParams.damping = newValue;
     else if (parameterID == "wetLevel")
-        customParams.wetLevel = newValue;
+        reverbParams.wetLevel = newValue;
     else if (parameterID == "dryLevel")
-        customParams.dryLevel = newValue;
+        reverbParams.dryLevel = newValue;
     else if (parameterID == "width")
-        customParams.width = newValue;
+        reverbParams.width = newValue;
     else if (parameterID == "freezeMode")
-        customParams.freezeMode = newValue;
+        reverbParams.freezeMode = newValue;
+    else if (parameterID == "crossoverFreq")
+        crossoverFrequency = 20.0f * std::pow(1000.0f, newValue);
     else if (parameterID == "highFreqDelay")
-        customParams.highFreqDelay = newValue;
-    else if (parameterID == "crossover")
-        customParams.crossover = newValue;
-    else if (parameterID == "harmDetuneAmount")
-        customParams.harmDetuneAmount = newValue;
+        highFreqDelayTime = juce::jmap(newValue, 0.001f, 0.5f);
+    else if (parameterID == "highFreqMix")
+        highFreqDelayMix = newValue;
+    else if (parameterID == "harmonicDetune")
+        harmonicDetuningAmount = newValue;
     
-    // Update the reverb parameters
-    updateReverbParameters();
-    updateHighFreqParameters();
+    // Update the reverb processors with new parameters
+    if (parameterID == "roomSize" || parameterID == "damping" || 
+        parameterID == "wetLevel" || parameterID == "dryLevel" || 
+        parameterID == "width" || parameterID == "freezeMode")
+    {
+        updateReverbParameters();
+    }
 }
 
 void CustomReverbAudioProcessor::updateReverbParameters()
 {
-    // Transfer from custom params to JUCE reverb params
-    reverbParams.roomSize = customParams.roomSize;
-    reverbParams.damping = customParams.damping;
-    reverbParams.wetLevel = customParams.wetLevel;
-    reverbParams.dryLevel = customParams.dryLevel;
-    reverbParams.width = customParams.width;
-    reverbParams.freezeMode = customParams.freezeMode;
-    
-    // Apply to the reverb processor
-    reverb.setParameters(reverbParams);
+    leftReverb.setParameters(reverbParams);
+    rightReverb.setParameters(reverbParams);
 }
 
 void CustomReverbAudioProcessor::updateHighFreqParameters()
 {
-    // Calculate high frequency delay amount from parameter
-    highFreqDelayAmount = customParams.highFreqDelay * 0.02f; // Max 20ms
+    // Calculate delay time in samples based on the sample rate
+    highFreqDelaySamples = static_cast<int>(highFreqDelayTime * getSampleRate());
     
-    // Calculate crossover frequency coefficient (from 500Hz to 8kHz)
-    float crossoverFreq = 500.0f * std::pow(16.0f, customParams.crossover);
-    float rc = 1.0f / (2.0f * juce::MathConstants<float>::pi * crossoverFreq);
-    float dt = 1.0f / getSampleRate();
-    lowpassCoeff = dt / (rc + dt);
-}
-
-void CustomReverbAudioProcessor::splitFrequencies(float input, float& lowOut, float& highOut, float& state)
-{
-    // Simple first-order lowpass filter to split frequencies
-    lowOut = state + lowpassCoeff * (input - state);
-    state = lowOut;
-    highOut = input - lowOut;
-}
-
-float CustomReverbAudioProcessor::processHighFreqDelay(float input, std::vector<float>& buffer)
-{
-    // Store the sample in the buffer
-    buffer[highFreqDelayWritePos] = input;
+    // Ensure delay buffer is large enough
+    if (highFreqDelaySamples > highFreqBufferSize)
+    {
+        highFreqBufferSize = highFreqDelaySamples;
+        highFreqDelayBufferL.resize(highFreqBufferSize, 0.0f);
+        highFreqDelayBufferR.resize(highFreqBufferSize, 0.0f);
+    }
     
-    // Calculate delay sample position
-    int delayLength = static_cast<int>(highFreqDelayAmount * getSampleRate());
-    int readPos = highFreqDelayWritePos - delayLength;
-    if (readPos < 0)
-        readPos += highFreqBufferSize;
-    
-    // Get delayed sample
-    float delayedSample = buffer[readPos];
-    
-    // Update write position
-    highFreqDelayWritePos = (highFreqDelayWritePos + 1) % highFreqBufferSize;
-    
-    return delayedSample;
-}
-
-void CustomReverbAudioProcessor::processHarmonicDetuning(float& leftSample, float& rightSample)
-{
-    // Skip processing if detune amount is zero
-    if (customParams.harmDetuneAmount <= 0.001f)
-        return;
-    
-    // Get the detune amount (0-1 maps to 0-10 Hz shift)
-    float detuneAmount = customParams.harmDetuneAmount * 10.0f;
-    
-    // Store samples in odd/even harmonic buffers
-    oddHarmonicBufferL[oddHarmonicPos] = leftSample;
-    evenHarmonicBufferR[evenHarmonicPos] = rightSample;
-    
-    // Calculate the phase shift amount for the sample rate
-    float phaseShiftSamples = detuneAmount / getSampleRate() * maxHarmonicFilterSize;
-    
-    // Detune odd harmonics in left channel
-    int readPos = oddHarmonicPos - static_cast<int>(phaseShiftSamples) % maxHarmonicFilterSize;
-    if (readPos < 0)
-        readPos += maxHarmonicFilterSize;
-    leftSample = oddHarmonicBufferL[readPos];
-    
-    // Detune even harmonics in right channel (opposite direction)
-    readPos = evenHarmonicPos + static_cast<int>(phaseShiftSamples) % maxHarmonicFilterSize;
-    if (readPos >= maxHarmonicFilterSize)
-        readPos -= maxHarmonicFilterSize;
-    rightSample = evenHarmonicBufferR[readPos];
-    
-    // Update buffer positions
-    oddHarmonicPos = (oddHarmonicPos + 1) % maxHarmonicFilterSize;
-    evenHarmonicPos = (evenHarmonicPos + 1) % maxHarmonicFilterSize;
+    // Reset delay buffer write position when parameters change significantly
+    writePosition = 0;
 }
 
 //==============================================================================
@@ -280,59 +235,38 @@ void CustomReverbAudioProcessor::changeProgramName (int index, const juce::Strin
 //==============================================================================
 void CustomReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Prepare the reverb for the sample rate
-    reverb.reset();
+    // Update parameters that depend on sample rate
+    updateHighFreqParameters();
     
-    // Reset FFT stuff
-    fifoIndex = 0;
-    nextFFTBlockReady = false;
+    // Prepare reverb processors
+    leftReverb.reset();
+    rightReverb.reset();
     
-    // Clear buffers and states
-    std::fill(fifo, fifo + fftSize, 0.0f);
+    // Clear FFT and spectrum data
     std::fill(fftData, fftData + 2 * fftSize, 0.0f);
     std::fill(scopeData, scopeData + scopeSize, 0.0f);
     
-    // Reset high frequency delay buffers
-    std::fill(highFreqDelayBufferL.begin(), highFreqDelayBufferL.end(), 0.0f);
-    std::fill(highFreqDelayBufferR.begin(), highFreqDelayBufferR.end(), 0.0f);
-    highFreqDelayReadPos = 0;
-    highFreqDelayWritePos = 0;
-    
-    // Reset harmonic detuning buffers
-    std::fill(oddHarmonicBufferL.begin(), oddHarmonicBufferL.end(), 0.0f);
-    std::fill(evenHarmonicBufferR.begin(), evenHarmonicBufferR.end(), 0.0f);
-    oddHarmonicPos = 0;
-    evenHarmonicPos = 0;
-    
-    // Reset filter states
-    lowpassStateL = 0.0f;
-    lowpassStateR = 0.0f;
-    
-    // Update parameters for the sample rate
-    updateHighFreqParameters();
+    // Reset FIFO
+    fifoIndex = 0;
+    nextFFTBlockReady = false;
 }
 
 void CustomReverbAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    // When playback stops, release any allocated resources
 }
 
-#ifndef JucePlugin_PreferredChannelConfigurations
 bool CustomReverbAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-    // Supports mono or stereo input/output
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    // This is a stereo processor - we only support stereo ins and outs
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-        
-    // Only support matching input/output channel count
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+    
+    if (layouts.getMainInputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-
+    
     return true;
 }
-#endif
 
 void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
@@ -343,57 +277,132 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Clear any output channels that don't contain input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // Get audio data pointers
-    auto* channelDataL = buffer.getWritePointer(0);
-    auto* channelDataR = buffer.getNumChannels() > 1 ? buffer.getWritePointer(1) : channelDataL;
     
-    // Process each sample
-    for (int i = 0; i < buffer.getNumSamples(); ++i)
+    // Get pointers to the left and right channels
+    float* leftChannel = buffer.getWritePointer(0);
+    float* rightChannel = buffer.getWritePointer(1);
+    
+    // Process the audio - sample by sample
+    for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
-        float inputL = channelDataL[i];
-        float inputR = channelDataR[i];
+        float leftSample = leftChannel[sample];
+        float rightSample = rightChannel[sample];
         
-        // Split into low and high frequency components
-        float lowL, highL, lowR, highR;
-        splitFrequencies(inputL, lowL, highL, lowpassStateL);
-        splitFrequencies(inputR, lowR, highR, lowpassStateR);
-        
-        // Process high frequencies with delay
-        float delayedHighL = processHighFreqDelay(highL, highFreqDelayBufferL);
-        float delayedHighR = processHighFreqDelay(highR, highFreqDelayBufferR);
-        
-        // Apply harmonic detuning (before reverb for subtle effect)
-        float mixedL = lowL + delayedHighL;
-        float mixedR = lowR + delayedHighR;
-        processHarmonicDetuning(mixedL, mixedR);
-        
-        // Process the mixed signal with the reverb
-        float reverbInputs[2] = { mixedL, mixedR };
-        float reverbOutputs[2] = { 0.0f, 0.0f };
-        reverb.processStereo(reverbInputs, reverbOutputs, 1);
-        
-        // Store the processed audio back to the buffer
-        channelDataL[i] = reverbOutputs[0];
-        if (totalNumOutputChannels > 1)
-            channelDataR[i] = reverbOutputs[1];
-        
-        // Feed spectral analyzer (mono mix)
-        float monoSample = 0.5f * (reverbOutputs[0] + (totalNumOutputChannels > 1 ? reverbOutputs[1] : reverbOutputs[0]));
+        // Calculate mono mix for spectrum analyzer
+        float monoSample = (leftSample + rightSample) * 0.5f;
         pushNextSampleIntoFifo(monoSample);
+        
+        // Split the signal into low and high frequency bands
+        float leftLow, leftHigh, rightLow, rightHigh;
+        processCrossover(leftSample, rightSample, leftLow, leftHigh, rightLow, rightHigh);
+        
+        // Process low frequencies through the main reverb
+        float leftLowReverb = leftReverb.processSample(leftLow);
+        float rightLowReverb = rightReverb.processSample(rightLow);
+        
+        // Process high frequencies through the delay
+        float leftHighDelay, rightHighDelay;
+        processHighFreqDelay(leftHigh, rightHigh, leftHighDelay, rightHighDelay);
+        
+        // Apply harmonic detuning for stereo enhancement
+        float leftOut = leftLowReverb + leftHighDelay;
+        float rightOut = rightLowReverb + rightHighDelay;
+        
+        // Apply harmonic detuning if enabled
+        if (harmonicDetuningAmount > 0.001f)
+        {
+            processHarmonicDetuning(leftOut, rightOut, harmonicDetuningAmount);
+        }
+        
+        // Output the processed samples
+        leftChannel[sample] = leftOut;
+        rightChannel[sample] = rightOut;
     }
     
-    // Update spectrum analyzer if one is attached
-    if (nextFFTBlockReady && spectrumAnalyzer != nullptr)
+    // Update FFT display if it's time
+    if (nextFFTBlockReady)
     {
         drawNextFrameOfSpectrum();
         nextFFTBlockReady = false;
     }
 }
 
-void CustomReverbAudioProcessor::pushNextSampleIntoFifo(float sample) noexcept
+void CustomReverbAudioProcessor::processCrossover(float leftIn, float rightIn, 
+                                               float& leftLow, float& leftHigh, 
+                                               float& rightLow, float& rightHigh)
 {
-    // If the fifo contains enough data, set a flag to say the next fft should be calculated
+    // Simple one-pole low-pass/high-pass filter for crossover
+    static float leftLP = 0.0f, rightLP = 0.0f;
+    
+    // Calculate filter coefficient from crossover frequency
+    float sampleRate = getSampleRate();
+    float alpha = 1.0f - std::exp(-2.0f * M_PI * crossoverFrequency / sampleRate);
+    
+    // Process crossover
+    leftLP = leftLP + alpha * (leftIn - leftLP);
+    rightLP = rightLP + alpha * (rightIn - rightLP);
+    
+    leftLow = leftLP;
+    rightLow = rightLP;
+    
+    leftHigh = leftIn - leftLow;
+    rightHigh = rightIn - rightLow;
+}
+
+void CustomReverbAudioProcessor::processHighFreqDelay(float leftIn, float rightIn, 
+                                                  float& leftOut, float& rightOut)
+{
+    // Calculate read position
+    int readPosition = writePosition - highFreqDelaySamples;
+    if (readPosition < 0)
+        readPosition += highFreqBufferSize;
+    
+    // Get delayed samples
+    float leftDelayed = highFreqDelayBufferL[readPosition];
+    float rightDelayed = highFreqDelayBufferR[readPosition];
+    
+    // Write new samples to buffer
+    highFreqDelayBufferL[writePosition] = leftIn;
+    highFreqDelayBufferR[writePosition] = rightIn;
+    
+    // Update write position
+    writePosition++;
+    if (writePosition >= highFreqBufferSize)
+        writePosition = 0;
+    
+    // Mix original and delayed signals
+    leftOut = leftIn * (1.0f - highFreqDelayMix) + leftDelayed * highFreqDelayMix;
+    rightOut = rightIn * (1.0f - highFreqDelayMix) + rightDelayed * highFreqDelayMix;
+}
+
+//==============================================================================
+juce::AudioProcessorValueTreeState::ParameterLayout CustomReverbAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> parameters;
+    
+    // Reverb parameters
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("damping", "Damping", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("wetLevel", "Wet Level", 0.0f, 1.0f, 0.33f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("dryLevel", "Dry Level", 0.0f, 1.0f, 0.4f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("width", "Width", 0.0f, 1.0f, 1.0f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("freezeMode", "Freeze Mode", 0.0f, 1.0f, 0.0f));
+    
+    // Advanced parameters
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("crossoverFreq", "Crossover Freq", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("highFreqDelay", "HF Delay", 0.0f, 1.0f, 0.2f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("highFreqMix", "HF Mix", 0.0f, 1.0f, 0.3f));
+    
+    // Harmonic detuning for stereo enhancement
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("harmonicDetune", "Harmonic Detune", 0.0f, 1.0f, 0.5f));
+    
+    return { parameters.begin(), parameters.end() };
+}
+
+void CustomReverbAudioProcessor::pushNextSampleIntoFifo(float sample)
+{
+    // If the fifo contains enough data, set a flag to say
+    // that the next frame should be rendered
     if (fifoIndex == fftSize)
     {
         if (!nextFFTBlockReady)
@@ -485,7 +494,11 @@ void CustomReverbAudioProcessor::setStateInformation (const void* data, int size
 // This creates new instances of the plugin
 // Make sure this is explicitly defined for VST3 compatibility
 // Required for VST3 plugins to properly initialize
-extern "C" JUCE_EXPORT juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+#if defined (_WIN32) || defined (_WIN64)
+  extern "C" __declspec(dllexport) juce::AudioProcessor* createPluginFilter()
+#else
+  extern "C" JUCE_EXPORT juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
+#endif
 {
     return new CustomReverbAudioProcessor();
 }
