@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    CustomReverbProcessor.cpp
-    Created: 2023
-    Author:  Audio Developer
-
-  ==============================================================================
-*/
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -463,6 +454,7 @@ void CustomReverbAudioProcessor::setStateInformation (const void* data, int size
 
 //==============================================================================
 // This creates new instances of the plugin
+// Make sure this is explicitly defined for VST3 compatibility
 // Required for VST3 plugins to properly initialize
 extern "C" JUCE_EXPORT juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

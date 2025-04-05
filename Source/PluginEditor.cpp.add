@@ -1,13 +1,27 @@
+/*
+  ==============================================================================
 
-    // Harmonic Detune Amount Slider
-    harmDetuneAmountSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    harmDetuneAmountSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-    harmDetuneAmountSlider.setLookAndFeel(&customLookAndFeel);
-    addAndMakeVisible(harmDetuneAmountSlider);
-    
-    harmDetuneAmountLabel.setText("Harmonic Detune", juce::dontSendNotification);
-    harmDetuneAmountLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(harmDetuneAmountLabel);
-    
-    harmDetuneAmountAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        apvts, "harmDetuneAmount", harmDetuneAmountSlider));
+    CustomReverbEditor.cpp
+    Created: 2023
+    Author:  Audio Developer
+
+  ==============================================================================
+  
+  This file implements the GUI components for the reverb plugin:
+  
+  1. SpectrumAnalyzerComponent 
+     - Real-time frequency visualization with multiple animation styles
+     - Physics-based fluid motion for smooth wave animations
+     - Color scheme options and different rendering styles
+     
+  2. CustomReverbAudioProcessorEditor
+     - Main plugin interface with interactive controls
+     - Parameter sliders with custom styling and tooltips
+     - Preset management system for quick parameter recall
+     - Integration with the SpectrumAnalyzer for visual feedback
+     
+  The implementation connects UI controls to the AudioProcessorValueTreeState
+  in the processor for automatic parameter synchronization and persistence.
+  All visualizations update in real-time as the audio is processed.
+*/
+

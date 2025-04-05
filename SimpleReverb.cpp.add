@@ -1,0 +1,15 @@
+/**
+ * SimpleReverb.cpp
+ * 
+ * This file contains the implementation of a professional-grade reverb effect processor
+ * with advanced features including harmonic detuning for stereo enhancement.
+ * 
+ * Key Features:
+ * - Realistic room reverberation with adjustable parameters
+ * - Stereo width enhancement through harmonic detuning
+ * - High frequency delay for natural sound decay
+ * - Freeze mode for infinite sustain
+ * - Real-time spectrum analysis and visualization
+ * 
+ * Project designed for both standalone use and as a VST3 plugin
+ */

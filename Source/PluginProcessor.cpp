@@ -1,4 +1,3 @@
-
 /*
   ==============================================================================
 
@@ -7,7 +6,27 @@
     Author:  Audio Developer
 
   ==============================================================================
+  
+  This file contains the implementation of the CustomReverbAudioProcessor class,
+  which provides all the audio processing functionality for the VST plugin.
+  
+  Key features:
+  - Realistic room reverberation using JUCE's Reverb class
+  - Enhanced stereo field using harmonic detuning (odd/even harmonics)
+  - Separate high-frequency delay for natural sound decay
+  - Spectrum analysis for visualization
+  - Parameter management through JUCE's AudioProcessorValueTreeState
+  
+  The processor handles multiple reverb parameters including:
+  - Room size, damping, and decay time
+  - Wet/dry mix controls
+  - Stereo width enhancement
+  - Freeze mode for infinite sustain
+  - High-frequency delay for more natural decay
+  - Crossover frequency for multi-band processing
+  - Harmonic detuning amount for enhanced stereo imaging
 */
+
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"

@@ -1,42 +1,125 @@
+/**
+ * SimpleReverb.cpp - Professional Audio Reverb Processor
+ * 
+ * This file contains the implementation of a professional-grade reverb effect processor
+ * with advanced features including harmonic detuning for stereo enhancement.
+ * 
+ * Key Features:
+ * - Realistic room reverberation with adjustable parameters
+ * - Stereo width enhancement through harmonic detuning
+ * - High frequency delay for natural sound decay
+ * - Freeze mode for infinite sustain
+ * - Real-time spectrum analysis and visualization
+ * - Multiple animation styles for audio visualization
+ * - Terminal-based UI for parameter adjustment
+ * - Standalone and VST3 plugin implementations
+ * 
+ * Technical Implementation:
+ * - Uses custom FFT for spectral analysis
+ * - Implements fluid dynamics simulation for wave animations
+ * - Cross-platform design (Windows and Linux compatible)
+ * - Optimized for real-time processing with minimal latency
+ * - File I/O for processing WAV files
+ * 
+ * All code is designed for both educational purposes and professional use
+ * in audio production environments.
+ */
+
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <cmath>
-#include <algorithm>
-#include <random>
-#include <memory>
-#include <fstream>
-#include <thread>
-#include <chrono>
+#include <string>
 #include <iomanip>
+#include <memory>
+#include <algorithm>
+#include <chrono>
+#include <thread>
+#include <functional>
+#include <cstring>
 
-// Windows specific includes
-#ifdef _WIN32
-#define NOMINMAX
-    #include <conio.h>    // For _kbhit() and _getch()
-    #include <windows.h>  // For Windows specific functionality
-#else
-    #include <unistd.h>
-    #include <sys/select.h>
-    #include <termios.h>
-    #include <fcntl.h>
-#endif
-
+// Include custom headers
 #include "SpectrumAnalyzer.h"
 #include "harmonic_detuning.h"
 
+// Define M_PI for Windows if it's not already defined
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+// Platform-specific includes for terminal control
+#ifdef _WIN32
+    #include <windows.h>
+    #include <conio.h>
+#else
+    #include <termios.h>
+    #include <unistd.h>
+    #include <fcntl.h>
+#endif
+
+ * 
+ * Key Features:
+ * - Realistic room reverberation with adjustable parameters
+ * - Stereo width enhancement through harmonic detuning
+ * - High frequency delay for natural sound decay
+ * - Freeze mode for infinite sustain
+ * - Real-time spectrum analysis and visualization
+ * 
+ * Project designed for both standalone use and as a VST3 plugin
+ */
+
+#include <iostream>     // Standard I/O operations
+#include <vector>       // Dynamic arrays
+#include <cmath>        // Mathematical functions
+#include <algorithm>    // Algorithm functions like min/max
+#include <random>       // Random number generation
+#include <memory>       // Smart pointers
+#include <fstream>      // File I/O
+#include <thread>       // Threading support
+#include <chrono>       // Time utilities
+#include <iomanip>      // I/O manipulation (for formatting)
+
+// Platform-specific includes for terminal/console handling
+#ifdef _WIN32
+#define NOMINMAX       // Prevents Windows.h from defining min/max macros
+    #include <conio.h>    // For _kbhit() and _getch() - Windows console input
+    #include <windows.h>  // For Windows API functions
+#else
+    // Unix/Linux specific headers for terminal control
+    #include <unistd.h>       // POSIX API
+    #include <sys/select.h>   // select() function for I/O multiplexing
+    #include <termios.h>      // Terminal I/O interfaces
+    #include <fcntl.h>        // File control options
+#endif
+
+// Project-specific includes
+#include "SpectrumAnalyzer.h"  // For real-time audio analysis and visualization
+#include "harmonic_detuning.h" // For stereo enhancement via harmonic detuning
+
+/**
+ * SimpleReverb Class
+ * 
+ * Core class implementing the reverb algorithm with all associated parameters
+ * and processing functionality.
+ */
 class SimpleReverb {
 public:
-    // Reverb parameters
+    /**
+     * Parameters Struct
+     * 
+     * Contains all adjustable parameters that control the reverb effect.
+     * Each parameter has a normalized range of 0.0 to 1.0 for consistent interface design.
+     */
     struct Parameters {
-        float roomSize;     // 0.0 to 1.0
-        float damping;      // 0.0 to 1.0
-        float wetLevel;     // 0.0 to 1.0
-        float dryLevel;     // 0.0 to 1.0
-        float width;        // 0.0 to 1.0
-        float freezeMode;   // 0.0 to 1.0
-        float highFreqDelay; // 0.0 to 1.0, delay for upper harmonics
-        float crossover;    // 0.0 to 1.0, crossover point between low/high freqs (0.5 = 1000Hz approx)
-        float harmDetuneAmount; // 0.0 to 1.0, amount of detuning for odd/even harmonics in stereo
+        float roomSize;        // Controls the size of the simulated room (0.0=small, 1.0=large)
+        float damping;         // Controls high frequency absorption (0.0=bright, 1.0=dark)
+        float wetLevel;        // Amount of processed signal in output (0.0=dry, 1.0=wet)
+        float dryLevel;        // Amount of unprocessed signal in output (0.0=none, 1.0=full)
+        float width;           // Stereo width enhancement (0.0=mono, 1.0=wide)
+        float freezeMode;      // Infinite reverb tail when 1.0 (0.0=normal, 1.0=freeze)
+        float highFreqDelay;   // Separate delay for high frequencies (0.0=same as low, 1.0=max delay)
+        float crossover;       // Frequency split point between low/high bands (0.5≈1000Hz)
+        float harmDetuneAmount; // Stereo enhancement via harmonic detuning (0.0=none, 1.0=maximum)
         
         Parameters() {
             // Default settings

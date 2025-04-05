@@ -1,9 +1,35 @@
+/**
+ * ReverbGUI.cpp - Terminal-based User Interface for Reverb Control
+ * 
+ * This file implements a text-based terminal UI for controlling the reverb parameters.
+ * It provides interactive controls for adjusting all reverb settings in real-time,
+ * with visual feedback through text-based sliders and parameter displays.
+ * 
+ * Features:
+ * - Text-based sliders for all parameters
+ * - Preset management system
+ * - Integration with the SimpleReverb core processing
+ * - Cross-platform terminal controls
+ * - Real-time parameter adjustment
+ * 
+ * Note: In a production environment, this would be replaced by a proper
+ * GUI framework like JUCE, Qt, or ImGui, but this provides a simple way
+ * to interact with the reverb in terminal/console environments.
+ */
+
 #include <iostream>
 #include <string>
+#include <vector>
+#include <map>
+#include <functional>
 
-// This is a simplified text-based UI for controlling our reverb
-// In a real app we would use a proper GUI framework like JUCE, Qt, or ImGui
-
+/**
+ * Display a parameter with a text-based slider visualization
+ * 
+ * @param name   The parameter name to display
+ * @param value  The parameter value (0.0 to 1.0)
+ * @param width  The width of the parameter name column for alignment
+ */
 void printParameter(const std::string& name, float value, int width = 20) {
     std::cout << name;
     

@@ -3951,3 +3951,73 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "JUCE/extras/Build/CMake/JUCECheckAtomic.cmake:73 (try_compile)"
+      - "JUCE/extras/Build/CMake/JUCECheckAtomic.cmake:128 (_juce_create_atomic_target)"
+      - "JUCE/extras/Build/CMake/JUCEModuleSupport.cmake:57 (include)"
+      - "JUCE/CMakeLists.txt:50 (include)"
+    directories:
+      source: "/home/runner/workspace/build-vst/JUCE/check_atomic_dir_XDCFIfy8pGbbXO5F/CMakeFiles/CMakeTmp"
+      binary: "/home/runner/workspace/build-vst/JUCE/check_atomic_dir_XDCFIfy8pGbbXO5F/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "compile_result"
+      cached: true
+      stdout: |
+        Change Dir: '/home/runner/workspace/build-vst/JUCE/check_atomic_dir_XDCFIfy8pGbbXO5F/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /nix/store/q1nssraba326p2kp6627hldd2bhg254c-cmake-3.29.2/bin/cmake -E env VERBOSE=1 /nix/store/cdzpn0rdq810aknww3w9fy3wmw9ixr66-gnumake-4.4.1/bin/make -f Makefile cmTC_412ec/fast
+        /nix/store/cdzpn0rdq810aknww3w9fy3wmw9ixr66-gnumake-4.4.1/bin/make  -f CMakeFiles/cmTC_412ec.dir/build.make CMakeFiles/cmTC_412ec.dir/build
+        make[1]: Entering directory '/home/runner/workspace/build-vst/JUCE/check_atomic_dir_XDCFIfy8pGbbXO5F/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_412ec.dir/check_atomic_3LY9YRKxFf7cazKZ.cpp.o
+        /nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++   -std=c++17 -o CMakeFiles/cmTC_412ec.dir/check_atomic_3LY9YRKxFf7cazKZ.cpp.o -c /home/runner/workspace/build-vst/JUCE/check_atomic_3LY9YRKxFf7cazKZ.cpp
+        Linking CXX executable cmTC_412ec
+        /nix/store/q1nssraba326p2kp6627hldd2bhg254c-cmake-3.29.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_412ec.dir/link.txt --verbose=1
+        /nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++ CMakeFiles/cmTC_412ec.dir/check_atomic_3LY9YRKxFf7cazKZ.cpp.o -o cmTC_412ec
+        make[1]: Leaving directory '/home/runner/workspace/build-vst/JUCE/check_atomic_dir_XDCFIfy8pGbbXO5F/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "JUCE/extras/Build/CMake/JUCECheckAtomic.cmake:73 (try_compile)"
+      - "JUCE/extras/Build/CMake/JUCECheckAtomic.cmake:128 (_juce_create_atomic_target)"
+      - "JUCE/extras/Build/CMake/JUCEModuleSupport.cmake:57 (include)"
+      - "JUCE/CMakeLists.txt:50 (include)"
+    directories:
+      source: "/home/runner/workspace/build-vst/JUCE/check_atomic_dir_LU1wBOMcOjT2u94N/CMakeFiles/CMakeTmp"
+      binary: "/home/runner/workspace/build-vst/JUCE/check_atomic_dir_LU1wBOMcOjT2u94N/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "compile_result"
+      cached: true
+      stdout: |
+        Change Dir: '/home/runner/workspace/build-vst/JUCE/check_atomic_dir_LU1wBOMcOjT2u94N/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /nix/store/q1nssraba326p2kp6627hldd2bhg254c-cmake-3.29.2/bin/cmake -E env VERBOSE=1 /nix/store/cdzpn0rdq810aknww3w9fy3wmw9ixr66-gnumake-4.4.1/bin/make -f Makefile cmTC_3b491/fast
+        /nix/store/cdzpn0rdq810aknww3w9fy3wmw9ixr66-gnumake-4.4.1/bin/make  -f CMakeFiles/cmTC_3b491.dir/build.make CMakeFiles/cmTC_3b491.dir/build
+        make[1]: Entering directory '/home/runner/workspace/build-vst/JUCE/check_atomic_dir_LU1wBOMcOjT2u94N/CMakeFiles/CMakeTmp'
+        Building CXX object CMakeFiles/cmTC_3b491.dir/check_atomic_KCtO5Y3cN6D4d2vB.cpp.o
+        /nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++   -std=c++17 -o CMakeFiles/cmTC_3b491.dir/check_atomic_KCtO5Y3cN6D4d2vB.cpp.o -c /home/runner/workspace/build-vst/JUCE/check_atomic_KCtO5Y3cN6D4d2vB.cpp
+        Linking CXX executable cmTC_3b491
+        /nix/store/q1nssraba326p2kp6627hldd2bhg254c-cmake-3.29.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3b491.dir/link.txt --verbose=1
+        /nix/store/9bv7dcvmfcjnmg5mnqwqlq2wxfn8d7yi-gcc-wrapper-13.2.0/bin/g++ CMakeFiles/cmTC_3b491.dir/check_atomic_KCtO5Y3cN6D4d2vB.cpp.o -o cmTC_3b491
+        make[1]: Leaving directory '/home/runner/workspace/build-vst/JUCE/check_atomic_dir_LU1wBOMcOjT2u94N/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+...

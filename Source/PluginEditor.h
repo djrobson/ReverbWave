@@ -6,6 +6,25 @@
     Author:  Audio Developer
 
   ==============================================================================
+  
+  This file contains the GUI implementation for the reverb plugin interface.
+  It includes two main components:
+  
+  1. SpectrumAnalyzerComponent: A real-time frequency analyzer with fluid
+     animations that visualizes the audio output spectrum
+     
+  2. CustomReverbAudioProcessorEditor: The main editor interface with sliders,
+     buttons and visualizations for controlling all reverb parameters
+     
+  The interface provides control over:
+  - Core reverb parameters (room size, damping, wet/dry mix)
+  - Enhanced stereo imaging through harmonic detuning
+  - Multi-band processing with crossover control
+  - Spectrum visualization with multiple animation styles
+  - Preset management system
+  
+  All controls connect to the AudioProcessorValueTreeState in the processor
+  for automatic parameter synchronization and state saving/loading.
 */
 
 #pragma once
@@ -15,7 +34,13 @@
 
 //==============================================================================
 /**
- * Spectrum Analyzer Component with Fluid Wave Animations
+ * SpectrumAnalyzerComponent
+ *
+ * A real-time frequency analyzer with fluid wave animations.
+ * This component visualizes the audio spectrum using FFT analysis and
+ * provides multiple visualization styles including waves, bars, and particles.
+ * It uses physics-based animation for a natural fluid motion effect.
+ *
  * Displays a real-time FFT of the audio output with an animated fluid wave visualization
  */
 class SpectrumAnalyzerComponent : public juce::Component,
@@ -77,7 +102,17 @@ private:
 
 //==============================================================================
 /**
-*/
+ * CustomReverbAudioProcessorEditor
+ *
+ * The main editor component for the reverb plugin interface.
+ * Provides a complete UI with sliders, buttons, and visualizations
+ * for controlling all reverb parameters including:
+ * - Room size, damping, and wet/dry balance
+ * - Stereo width enhancement
+ * - Harmonic detuning for enhanced stereo imaging
+ * - High-frequency delay for more natural decay
+ * - Preset management system
+ */
 class CustomReverbAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:

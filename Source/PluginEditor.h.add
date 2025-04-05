@@ -1,0 +1,29 @@
+/*
+  ==============================================================================
+
+    CustomReverbEditor.h
+    Created: 2023
+    Author:  Audio Developer
+
+  ==============================================================================
+  
+  This file contains the GUI implementation for the reverb plugin interface.
+  It includes two main components:
+  
+  1. SpectrumAnalyzerComponent: A real-time frequency analyzer with fluid
+     animations that visualizes the audio output spectrum
+     
+  2. CustomReverbAudioProcessorEditor: The main editor interface with sliders,
+     buttons and visualizations for controlling all reverb parameters
+     
+  The interface provides control over:
+  - Core reverb parameters (room size, damping, wet/dry mix)
+  - Enhanced stereo imaging through harmonic detuning
+  - Multi-band processing with crossover control
+  - Spectrum visualization with multiple animation styles
+  - Preset management system
+  
+  All controls connect to the AudioProcessorValueTreeState in the processor
+  for automatic parameter synchronization and state saving/loading.
+*/
+
