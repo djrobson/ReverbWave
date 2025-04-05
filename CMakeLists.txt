@@ -24,27 +24,6 @@ set(BUNDLE_ID "co.relabs.ReverbWave")
 set(FORMATS Standalone AU VST3 AUv3)
 project(${PROJECT_NAME} VERSION 1.0.0)
 
-
-# Include the standalone applications
-# ------------------------------------------------------------------------------
-
-# Add the original SimpleReverb standalone app with spectrum analyzer
-add_executable(SimpleReverb SimpleReverb.cpp SpectrumAnalyzer.cpp harmonic_detuning.cpp)
-target_compile_features(SimpleReverb PRIVATE cxx_std_14)
-target_include_directories(SimpleReverb PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Platform-specific libraries for SimpleReverb
-if(UNIX)
-    target_link_libraries(SimpleReverb PRIVATE m pthread)
-elseif(WIN32)
-    target_link_libraries(SimpleReverb PRIVATE winmm)
-endif()
-
-# Create simple GUI application
-add_executable(ReverbGUI GUI/ReverbGUI.cpp harmonic_detuning.cpp)
-target_compile_features(ReverbGUI PRIVATE cxx_std_14)
-target_include_directories(ReverbGUI PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
 # JUCE VST Plugin Configuration
 # ------------------------------------------------------------------------------
 

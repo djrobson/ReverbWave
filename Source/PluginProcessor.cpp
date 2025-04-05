@@ -31,6 +31,11 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+// Define M_PI for Windows if it's not already defined
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 //==============================================================================
 CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     : AudioProcessor (BusesProperties()
@@ -58,18 +63,18 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     reverbParams.freezeMode = 0.0f;
     
     // Initialize crossover frequency
-    crossoverFrequency = 2000.0f;
-    highFreqDelayTime = 0.1f; // 100ms default
-    highFreqDelayMix = 0.3f;
+    customParams.crossover = 2000.0f;
+    customParams.highFreqDelay = 0.1f; // 100ms default
+    customParams.highFreqDelayMix = 0.3f;
     
     // Initialize harmonic detuning
-    harmonicDetuningAmount = 0.5f;
+    customParams.harmDetuneAmount = 0.5f;
     
     // Setup spectrum analyzer
-    fftSize = 1 << fftOrder;
-    fifo.resize(fftSize, 0.0f);
-    fftData = new float[2 * fftSize];
-    scopeData = new float[scopeSize];
+    //fftSize = 1 << fftOrder;
+    //fifo.resize(fftSize, 0.0f);
+    //fftData = new float[2 * fftSize];
+    //scopeData = new float[scopeSize];
     std::fill(fftData, fftData + 2 * fftSize, 0.0f);
     std::fill(scopeData, scopeData + scopeSize, 0.0f);
     fifoIndex = 0;
@@ -97,8 +102,8 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
 CustomReverbAudioProcessor::~CustomReverbAudioProcessor()
 {
     // Clean up memory
-    delete[] fftData;
-    delete[] scopeData;
+    //delete[] fftData;
+    //delete[] scopeData;
     
     // Remove parameter listeners
     apvts.removeParameterListener("roomSize", this);
@@ -130,13 +135,13 @@ void CustomReverbAudioProcessor::parameterChanged(const juce::String& parameterI
     else if (parameterID == "freezeMode")
         reverbParams.freezeMode = newValue;
     else if (parameterID == "crossoverFreq")
-        crossoverFrequency = 20.0f * std::pow(1000.0f, newValue);
+        customParams.crossover = 20.0f * std::pow(1000.0f, newValue);
     else if (parameterID == "highFreqDelay")
-        highFreqDelayTime = juce::jmap(newValue, 0.001f, 0.5f);
+        customParams.highFreqDelay = juce::jmap(newValue, 0.001f, 0.5f);
     else if (parameterID == "highFreqMix")
-        highFreqDelayMix = newValue;
+        customParams.highFreqDelayMix = newValue;
     else if (parameterID == "harmonicDetune")
-        harmonicDetuningAmount = newValue;
+        customParams.harmDetuneAmount = newValue;
     
     // Update the reverb processors with new parameters
     if (parameterID == "roomSize" || parameterID == "damping" || 
@@ -156,7 +161,7 @@ void CustomReverbAudioProcessor::updateReverbParameters()
 void CustomReverbAudioProcessor::updateHighFreqParameters()
 {
     // Calculate delay time in samples based on the sample rate
-    highFreqDelaySamples = static_cast<int>(highFreqDelayTime * getSampleRate());
+    int highFreqDelaySamples = static_cast<int>(customParams.highFreqDelay * getSampleRate());
     
     // Ensure delay buffer is large enough
     if (highFreqDelaySamples > highFreqBufferSize)
@@ -167,7 +172,7 @@ void CustomReverbAudioProcessor::updateHighFreqParameters()
     }
     
     // Reset delay buffer write position when parameters change significantly
-    writePosition = 0;
+    highFreqDelayWritePos = 0;
 }
 
 //==============================================================================
@@ -221,27 +226,34 @@ int CustomReverbAudioProcessor::getCurrentProgram()
 
 void CustomReverbAudioProcessor::setCurrentProgram (int index)
 {
+    (void)index; // Suppress unused parameter warning
 }
 
 const juce::String CustomReverbAudioProcessor::getProgramName (int index)
 {
+    (void)index; // Suppress unused parameter warning
     return {};
 }
 
 void CustomReverbAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+    (void)index; // Suppress unused parameter warning
+    (void)newName; // Suppress unused parameter warning
 }
 
 //==============================================================================
 void CustomReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    (void)samplesPerBlock; // Suppress unused parameter warning
+    
+    customParams.sampleRate = sampleRate;
     // Update parameters that depend on sample rate
     updateHighFreqParameters();
     
     // Prepare reverb processors
     leftReverb.reset();
     rightReverb.reset();
-    
+    //TODO: match samplesPerBlock to array sizes
     // Clear FFT and spectrum data
     std::fill(fftData, fftData + 2 * fftSize, 0.0f);
     std::fill(scopeData, scopeData + scopeSize, 0.0f);
@@ -267,9 +279,42 @@ bool CustomReverbAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
     
     return true;
 }
+// Process harmonic detuning on stereo channels
+void CustomReverbAudioProcessor::processHarmonicDetuning(float& leftSample, float& rightSample) {
+    if (customParams.harmDetuneAmount <= 0.001f) {
+        return; // Skip processing if detuning is disabled
+    }
+    
+    // Get the detune amount (0-1 maps to 0-10 Hz shift)
+    float detuneAmount = customParams.harmDetuneAmount * 10.0f;
+    
+    // Store samples in odd/even harmonic buffers
+    oddHarmonicBufferL[oddHarmonicPos] = leftSample;
+    evenHarmonicBufferR[evenHarmonicPos] = rightSample;
+    
+    // Calculate the phase shift amount for the sample rate
+    float phaseShiftSamples = detuneAmount / customParams.sampleRate * maxHarmonicFilterSize;
+    
+    // Detune odd harmonics in left channel
+    int readPos = oddHarmonicPos - static_cast<int>(phaseShiftSamples) % maxHarmonicFilterSize;
+    if (readPos < 0)
+        readPos += maxHarmonicFilterSize;
+    leftSample = oddHarmonicBufferL[readPos];
+    
+    // Detune even harmonics in right channel (opposite direction)
+    readPos = evenHarmonicPos + static_cast<int>(phaseShiftSamples) % maxHarmonicFilterSize;
+    if (readPos >= maxHarmonicFilterSize)
+        readPos -= maxHarmonicFilterSize;
+    rightSample = evenHarmonicBufferR[readPos];
+    
+    // Update buffer positions
+    oddHarmonicPos = (oddHarmonicPos + 1) % maxHarmonicFilterSize;
+    evenHarmonicPos = (evenHarmonicPos + 1) % maxHarmonicFilterSize;
+}
 
 void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    (void)midiMessages; // Suppress unused parameter warning
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -297,8 +342,9 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         processCrossover(leftSample, rightSample, leftLow, leftHigh, rightLow, rightHigh);
         
         // Process low frequencies through the main reverb
-        float leftLowReverb = leftReverb.processSample(leftLow);
-        float rightLowReverb = rightReverb.processSample(rightLow);
+        //TODO: Add a stereo reverb for left and right channels
+        float leftLowReverb = 0; //leftReverb.processSample(leftLow);
+        float rightLowReverb = 0; //rightReverb.processSample(rightLow);
         
         // Process high frequencies through the delay
         float leftHighDelay, rightHighDelay;
@@ -309,9 +355,9 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         float rightOut = rightLowReverb + rightHighDelay;
         
         // Apply harmonic detuning if enabled
-        if (harmonicDetuningAmount > 0.001f)
+        if (customParams.harmDetuneAmount > 0.001f)
         {
-            processHarmonicDetuning(leftOut, rightOut, harmonicDetuningAmount);
+            processHarmonicDetuning(leftOut, rightOut);
         }
         
         // Output the processed samples
@@ -335,8 +381,8 @@ void CustomReverbAudioProcessor::processCrossover(float leftIn, float rightIn,
     static float leftLP = 0.0f, rightLP = 0.0f;
     
     // Calculate filter coefficient from crossover frequency
-    float sampleRate = getSampleRate();
-    float alpha = 1.0f - std::exp(-2.0f * M_PI * crossoverFrequency / sampleRate);
+    float sampleRate = (float)getSampleRate();
+    float alpha = 1.0f - (float)std::exp(-2.0f * M_PI * customParams.crossover / sampleRate);
     
     // Process crossover
     leftLP = leftLP + alpha * (leftIn - leftLP);
@@ -353,26 +399,26 @@ void CustomReverbAudioProcessor::processHighFreqDelay(float leftIn, float rightI
                                                   float& leftOut, float& rightOut)
 {
     // Calculate read position
-    int readPosition = writePosition - highFreqDelaySamples;
-    if (readPosition < 0)
-        readPosition += highFreqBufferSize;
+    highFreqDelayReadPos = highFreqDelayWritePos - highFreqBufferSize;
+    if (highFreqDelayReadPos < 0)
+        highFreqDelayReadPos += highFreqBufferSize;
     
     // Get delayed samples
-    float leftDelayed = highFreqDelayBufferL[readPosition];
-    float rightDelayed = highFreqDelayBufferR[readPosition];
+    float leftDelayed = highFreqDelayBufferL[highFreqDelayReadPos];
+    float rightDelayed = highFreqDelayBufferR[highFreqDelayReadPos];
     
     // Write new samples to buffer
-    highFreqDelayBufferL[writePosition] = leftIn;
-    highFreqDelayBufferR[writePosition] = rightIn;
+    highFreqDelayBufferL[highFreqDelayWritePos] = leftIn;
+    highFreqDelayBufferR[highFreqDelayWritePos] = rightIn;
     
     // Update write position
-    writePosition++;
-    if (writePosition >= highFreqBufferSize)
-        writePosition = 0;
+    highFreqDelayWritePos++;
+    if (highFreqDelayWritePos >= highFreqBufferSize)
+        highFreqDelayWritePos = 0;
     
     // Mix original and delayed signals
-    leftOut = leftIn * (1.0f - highFreqDelayMix) + leftDelayed * highFreqDelayMix;
-    rightOut = rightIn * (1.0f - highFreqDelayMix) + rightDelayed * highFreqDelayMix;
+    leftOut = leftIn * (1.0f - customParams.highFreqDelayMix) + leftDelayed * customParams.highFreqDelayMix;
+    rightOut = rightIn * (1.0f - customParams.highFreqDelayMix) + rightDelayed * customParams.highFreqDelayMix;
 }
 
 //==============================================================================
@@ -494,11 +540,9 @@ void CustomReverbAudioProcessor::setStateInformation (const void* data, int size
 // This creates new instances of the plugin
 // Make sure this is explicitly defined for VST3 compatibility
 // Required for VST3 plugins to properly initialize
-#if defined (_WIN32) || defined (_WIN64)
-  extern "C" __declspec(dllexport) juce::AudioProcessor* createPluginFilter()
-#else
-  extern "C" JUCE_EXPORT juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
-#endif
+
+//juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter();
+extern juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new CustomReverbAudioProcessor();
 }

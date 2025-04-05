@@ -58,6 +58,15 @@ public:
     /** Core audio processing method - applies reverb and effects to each buffer */
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
+    /** split the signal into low and high frequency bands */
+    void processCrossover(float leftIn, float rightIn,
+        float& leftLow, float& leftHigh,
+        float& rightLow, float& rightHigh);
+
+    /** handle delay differently for high frequencies */
+    void processHighFreqDelay(float leftIn, float rightIn,
+        float& leftOut, float& rightOut);
+
     //==============================================================================
     /** Creates the processor's GUI editor component */
     juce::AudioProcessorEditor* createEditor() override;
@@ -138,12 +147,15 @@ private:
         float width = 1.0f;           // Stereo width enhancement (0.0=mono, 1.0=wide)
         float freezeMode = 0.0f;      // Infinite reverb tail when 1.0 (0.0=normal, 1.0=freeze)
         float highFreqDelay = 0.3f;   // Separate delay for high frequencies (0.0=same as low, 1.0=max delay)
+		float highFreqDelayMix = 0.3f; // Mix of high frequency delay (0.0=none, 1.0=full)
         float crossover = 0.5f;       // Frequency split point between low/high bands (0.5≈1000Hz)
         float harmDetuneAmount = 0.0f; // Stereo enhancement via harmonic detuning (0.0=none, 1.0=maximum)
+        float sampleRate = 44100.0f; // Sample rate for processing (default 44.1kHz)
     };
     
     /** JUCE built-in reverb processor and parameters */
-    juce::Reverb reverb;
+    juce::Reverb leftReverb;
+	juce::Reverb rightReverb;
     juce::Reverb::Parameters reverbParams;
     
     /** Custom extended parameters for our enhanced reverb features */
@@ -223,9 +235,9 @@ private:
     float scopeData[scopeSize];    // Processed data ready for visualization
     
     /** FFT processing methods */
-    void pushNextSampleIntoFifo(float sample) noexcept;  // Adds a sample to the FFT buffer
-    void drawNextFrameOfSpectrum();                      // Triggers visualization update
-    void calculateFrequencySpectrum();                   // Performs FFT and prepares data for display
+    void pushNextSampleIntoFifo(float sample); // Adds a sample to the FFT buffer
+    void drawNextFrameOfSpectrum();            // Triggers visualization update
+    void calculateFrequencySpectrum();         // Performs FFT and prepares data for display
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomReverbAudioProcessor)
 };
