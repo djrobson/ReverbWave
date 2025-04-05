@@ -27,15 +27,15 @@ juce_add_plugin(ReverbVST
     
     # Plugin Format Information
     FORMATS VST3 Standalone
-    PRODUCT_NAME "SimpleReverb VST"
+    PRODUCT_NAME "ReverbWave"
     
     # Plugin Type
     VST3_CATEGORIES "Fx" "Reverb"
     
     # Plugin Information
-    COMPANY_NAME "SimpleReverb"
-    COMPANY_WEBSITE "https://example.com"
-    COMPANY_EMAIL "info@example.com"
+    COMPANY_NAME "Robson Enterprises"
+    COMPANY_WEBSITE "https://relab.co"
+    COMPANY_EMAIL "drobson@relab.co"
     
     # Source Files
     SOURCES

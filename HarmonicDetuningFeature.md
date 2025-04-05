@@ -1,6 +1,6 @@
 # Harmonic Detuning for Enhanced Stereo Imaging
 
-The SimpleReverb project now includes a sophisticated harmonic detuning feature that enhances stereo imaging by applying subtle pitch variations to different harmonic content in the left and right channels.
+The ReverbVST project now includes a sophisticated harmonic detuning feature that enhances stereo imaging by applying subtle pitch variations to different harmonic content in the left and right channels.
 
 ## Technical Overview
 
@@ -82,4 +82,4 @@ void processHarmonicDetuning(float& leftSample, float& rightSample) {
 }
 ```
 
-This harmonic detuning technique has been implemented across all versions of the reverb effect: the standalone SimpleReverb application, the ReverbGUI interface, and the VST3 plugin for use in digital audio workstations.
+This harmonic detuning technique has been implemented in the VST3 plugin for use in digital audio workstations.

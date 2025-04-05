@@ -11,22 +11,6 @@ name = "Project"
 mode = "parallel"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build SimpleReverb"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Run ReverbGUI"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Run SimpleReverb"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Run ReverbGUI Demo"
-
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -42,16 +26,8 @@ args = "Build ReverbVST All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Direct SimpleReverb Run"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Build VST Plugin"
 
-[[workflows.workflow]]
-name = "Build SimpleReverb"
-author = "agent"
-
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
 
@@ -60,11 +36,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "rm -rf build && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make SimpleReverb -j4"
-
-[[workflows.workflow]]
-name = "Run ReverbGUI"
-author = "agent"
+args = "rm -rf build && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make ReverbVST -j4"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
@@ -72,38 +44,16 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd build && ./ReverbGUI"
-
-[[workflows.workflow]]
-name = "Run SimpleReverb"
-author = "agent"
-
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd build && ./SimpleReverb"
-
-[[workflows.workflow]]
-name = "Run ReverbGUI Demo"
-author = "agent"
-
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd build && ./ReverbGUI"
-
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
@@ -153,20 +103,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make ReverbVST_All -j4"
-
-[[workflows.workflow]]
-name = "Direct SimpleReverb Run"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "./SimpleReverb"
 
 [[workflows.workflow]]
 name = "Build VST Plugin"

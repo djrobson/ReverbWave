@@ -1,4 +1,4 @@
-# SimpleReverb Project Summary
+# ReverbVST Project Summary
 
 ## Project Overview
 This project implements a feature-rich audio reverb effect with multiple implementations:
@@ -8,28 +8,6 @@ This project implements a feature-rich audio reverb effect with multiple impleme
 3. A VST3 plugin version compatible with digital audio workstations (DAWs)
 
 ## Components
-
-### SimpleReverb (Standalone Application)
-- Processes WAV files with configurable reverb parameters
-- Features real-time spectrum analysis with fluid wave animations
-- Includes terminal visualization for frequency spectrum
-- Supports different animation modes and color schemes
-- Cross-platform compatible (Linux and Windows)
-
-### ReverbGUI (Interactive Controls)
-- Text-based user interface for controlling reverb parameters
-- Allows parameter visualization with simple sliders
-- Includes preset management for quick effect selection
-- Parameters include:
-  - Room Size (0.0 to 1.0)
-  - Damping (0.0 to 1.0)
-  - Wet Level (0.0 to 1.0)
-  - Dry Level (0.0 to 1.0)
-  - Width (0.0 to 1.0)
-  - Freeze Mode (0.0 to 1.0)
-  - High Frequency Delay (0.0 to 1.0)
-  - Crossover (0.0 to 1.0)
-  - Harmonic Detuning Amount (0.0 to 1.0)
 
 ### ReverbVST (Plugin Version)
 - Complete VST3 plugin using the JUCE framework
@@ -65,15 +43,10 @@ This project implements a feature-rich audio reverb effect with multiple impleme
 ## Build Information
 - CMake-based build system for cross-platform compatibility
 - Multiple executable targets:
-  - SimpleReverb (standalone processor)
-  - ReverbGUI (terminal UI)
-  - IntegrationDemo (showcase integration)
   - ReverbVST (VST3 plugin)
 - Support for Linux and Windows platforms
 
 ## Usage Instructions
-- **SimpleReverb**: Process WAV files and visualize frequency spectrum
-- **ReverbGUI**: Control reverb parameters through text interface
 - **ReverbVST**: Use as a plugin in compatible DAWs
   - Copy the VST3 plugin from `./build/ReverbVST_artefacts/Release/`
   - Place in your DAW's plugin directory

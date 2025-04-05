@@ -48,8 +48,8 @@
 #if ! JUCE_DONT_DECLARE_PROJECTINFO
 namespace ProjectInfo
 {
-    const char* const  projectName    = "SimpleReverb VST";
-    const char* const  companyName    = "SimpleReverb";
+    const char* const  projectName    = "ReverbWave";
+    const char* const  companyName    = "Relab";
     const char* const  versionString  = "1.0.0";
     const int          versionNumber  = 0x10000;
 }

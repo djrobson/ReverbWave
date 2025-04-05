@@ -1,14 +1,9 @@
-# SimpleReverb: Cross-Platform Audio Reverb & Spectrum Analyzer
+# ReverbVST: Cross-Platform Audio Reverb & Spectrum Analyzer
 
 A professional C++ audio reverb effect implementation with real-time spectrum visualization. The project is designed to be cross-platform compatible, running natively on both Windows and Unix-like systems, with VST plugin support using the JUCE framework.
 
 ## Project Components
-
-The project consists of four main components:
-
-1. **SimpleReverb**: Core audio processor with spectrum analyzer visualization
-2. **ReverbGUI**: Text-based interface for adjusting reverb parameters
-3. **ReverbVST**: VST3 and standalone audio plugin implementation using JUCE
+**ReverbVST**: VST3 and standalone audio plugin implementation using JUCE
 
 ## Features
 
@@ -106,36 +101,6 @@ This will create:
 - A standalone application in `build/ReverbVST_artefacts/Standalone/`
 
 ### Running the Applications
-
-#### SimpleReverb (with spectrum analyzer)
-
-```bash
-# Linux/Unix
-./build/SimpleReverb
-
-# Windows
-.\build\Release\SimpleReverb.exe
-```
-
-#### ReverbGUI (parameter interface)
-
-```bash
-# Linux/Unix
-./build/ReverbGUI
-
-# Windows
-.\build\Release\ReverbGUI.exe
-```
-
-#### ReverbVST (standalone plugin)
-
-```bash
-# Linux/Unix
-./build/ReverbVST_artefacts/Standalone/SimpleReverb\ VST
-
-# Windows
-.\build\ReverbVST_artefacts\Standalone\SimpleReverb VST.exe
-```
 
 ## Presets
 

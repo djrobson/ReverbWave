@@ -50,19 +50,19 @@
 
 // Plugin identification
 #ifndef  JucePlugin_Name
- #define JucePlugin_Name                   "SimpleReverb VST"
+ #define JucePlugin_Name                   "ReverbWave"
 #endif
 #ifndef  JucePlugin_Desc
  #define JucePlugin_Desc                   "Professional reverb effect"
 #endif
 #ifndef  JucePlugin_Manufacturer
- #define JucePlugin_Manufacturer           "SimpleReverb"
+ #define JucePlugin_Manufacturer           "Robson Enterprises"
 #endif
 #ifndef  JucePlugin_ManufacturerWebsite
- #define JucePlugin_ManufacturerWebsite    "www.example.com"
+ #define JucePlugin_ManufacturerWebsite    "relab.co"
 #endif
 #ifndef  JucePlugin_ManufacturerEmail
- #define JucePlugin_ManufacturerEmail      "info@example.com"
+ #define JucePlugin_ManufacturerEmail      "drobson@relab.co
 #endif
 #ifndef  JucePlugin_ManufacturerCode
  #define JucePlugin_ManufacturerCode       0x5265566b // 'ReVb'
