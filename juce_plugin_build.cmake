@@ -43,6 +43,7 @@ juce_add_plugin(ReverbVST
         Source/PluginEditor.cpp
         SpectrumAnalyzer.cpp
         SpectrumAnalyzerJUCE.cpp
+        harmonic_detuning.cpp
 )
 
 # Configure VST Processing settings

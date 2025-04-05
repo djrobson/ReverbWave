@@ -94,31 +94,8 @@ public:
     
     // Process harmonic detuning on stereo channels
     void processHarmonicDetuning(float& leftSample, float& rightSample) {
+        // Call the external harmonic detuning implementation from harmonic_detuning.cpp
         ::processHarmonicDetuning(leftSample, rightSample, parameters.harmDetuneAmount);
-    }
-        
-        // Store samples in odd/even harmonic buffers
-        oddHarmonicBuffer[0][oddHarmonicFilter[0]] = leftSample;
-        evenHarmonicBuffer[0][evenHarmonicFilter[0]] = rightSample;
-        
-        // Calculate delay indices for left (odd harmonics)
-        float oddHarmonicDelay = 0.25f + 0.25f * parameters.harmDetuneAmount;
-        int oddDelayIndex = (oddHarmonicFilter[0] - 1 + oddHarmonicBuffer[0].size()) % oddHarmonicBuffer[0].size();
-        float oddDelayedSample = oddHarmonicBuffer[0][oddDelayIndex];
-        
-        // Calculate delay indices for right (even harmonics)
-        float evenHarmonicDelay = 0.5f + 0.5f * parameters.harmDetuneAmount; 
-        int evenDelayIndex = (evenHarmonicFilter[0] - 1 + evenHarmonicBuffer[0].size()) % evenHarmonicBuffer[0].size();
-        float evenDelayedSample = evenHarmonicBuffer[0][evenDelayIndex];
-        
-        // Update indices for next time
-        oddHarmonicFilter[0] = (oddHarmonicFilter[0] + 1) % oddHarmonicBuffer[0].size();
-        evenHarmonicFilter[0] = (evenHarmonicFilter[0] + 1) % evenHarmonicBuffer[0].size();
-        
-        // Mix original and detuned samples - Detune only odd harmonics for left, even for right
-        float mixAmount = parameters.harmDetuneAmount * 0.5f; // Scale for subtle effect
-        leftSample = leftSample * (1.0f - mixAmount) + oddDelayedSample * mixAmount;
-        rightSample = rightSample * (1.0f - mixAmount) + evenDelayedSample * mixAmount;
     }
     
     // Rest of the SimpleReverb class methods...
