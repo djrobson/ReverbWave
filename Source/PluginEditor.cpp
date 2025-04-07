@@ -105,7 +105,7 @@ void SpectrumAnalyzerComponent::paint(juce::Graphics& g)
             
             if (x >= 0 && x < width)
             {
-                g.drawText(freqLabels[i], static_cast<int>(x) - 10, height - 20, 20, 20, juce::Justification::centred);
+                g.drawText(freqLabels[i], static_cast<int>(x) - 10, (int)height - 20, 20, 20, juce::Justification::centred);
                 g.drawLine(x, height - 22, x, height - 18, 1.0f);
             }
         }
@@ -160,7 +160,7 @@ void SpectrumAnalyzerComponent::paint(juce::Graphics& g)
         g.setColour(baseColour2.brighter(0.5f));
         for (int i = 0; i < 20; ++i)
         {
-            int idx = random.nextInt(wavePoints.size());
+            int idx = random.nextInt((int)wavePoints.size());
             float x = width * idx / static_cast<float>(wavePoints.size() - 1);
             float y = height * (1.0f - wavePoints[idx]);
             float size = 1.0f + 2.0f * wavePoints[idx];
@@ -171,7 +171,7 @@ void SpectrumAnalyzerComponent::paint(juce::Graphics& g)
     else if (animationMode == 1) // Bar mode
     {
         // Draw frequency spectrum as animated bars
-        const int numBars = spectrumValues.size();
+        const int numBars = (int)spectrumValues.size();
         const float barWidth = width / static_cast<float>(numBars);
         
         for (int i = 0; i < numBars; ++i)
@@ -197,7 +197,7 @@ void SpectrumAnalyzerComponent::paint(juce::Graphics& g)
     else if (animationMode == 2) // Particle mode
     {
         // Draw frequency spectrum as animated particles
-        const int numBars = spectrumValues.size();
+        const int numBars = (int)spectrumValues.size();
         const float barWidth = width / static_cast<float>(numBars);
         
         for (int i = 0; i < numBars; ++i)
@@ -517,13 +517,14 @@ void CustomReverbAudioProcessorEditor::paint (juce::Graphics& g)
     // Draw a gradient background
     juce::ColourGradient gradient(
         juce::Colour(15, 25, 35), 0, 0,
-        juce::Colour(40, 50, 60), getWidth(), getHeight(),
+        juce::Colour(40, 50, 60), (float)getWidth(), (float)getHeight(),
         false);
     g.setGradientFill(gradient);
     g.fillRect(getLocalBounds());
     
     // Draw title
-    g.setFont(juce::Font(24.0f, juce::Font::bold));
+    FontOptions fOptions(24.0f, juce::Font::bold);
+    g.setFont(juce::Font(fOptions));
     g.setColour(juce::Colours::white);
     g.drawText("Custom Reverb Plugin", 20, 15, getWidth() - 40, 30, juce::Justification::centred);
 }

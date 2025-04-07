@@ -246,7 +246,7 @@ void CustomReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 {
     (void)samplesPerBlock; // Suppress unused parameter warning
     
-    customParams.sampleRate = sampleRate;
+    customParams.sampleRate = (float)sampleRate;
     // Update parameters that depend on sample rate
     updateHighFreqParameters();
     

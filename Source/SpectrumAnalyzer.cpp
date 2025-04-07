@@ -14,17 +14,17 @@
 
 void FFT::perform(std::complex<float>* data) {
     // Bit-reversal permutation
-    int j = 0;
+    int j1 = 0;
     for (int i = 0; i < size - 1; i++) {
-        if (i < j) {
-            std::swap(data[i], data[j]);
+        if (i < j1) {
+            std::swap(data[i], data[j1]);
         }
         int m = size / 2;
-        while (m <= j) {
-            j -= m;
+        while (m <= j1) {
+            j1 -= m;
             m /= 2;
         }
-        j += m;
+        j1 += m;
     }
     
     // Cooley-Tukey decimation-in-time algorithm
@@ -34,11 +34,11 @@ void FFT::perform(std::complex<float>* data) {
         int step = size / m;
         
         for (int k = 0; k < size; k += m) {
-            for (int j = 0; j < m2; j++) {
-                std::complex<float> t = twiddles[j * step] * data[k + j + m2];
-                std::complex<float> u = data[k + j];
-                data[k + j] = u + t;
-                data[k + j + m2] = u - t;
+            for (int j2 = 0; j2 < m2; j2++) {
+                std::complex<float> t = twiddles[j2 * step] * data[k + j2 + m2];
+                std::complex<float> u = data[k + j2];
+                data[k + j2] = u + t;
+                data[k + j2 + m2] = u - t;
             }
         }
     }
@@ -200,7 +200,7 @@ void SpectrumAnalyzer::drawWaveMode(std::vector<std::string>& buffer, int width,
     for (int i = 0; i < scopeSize; ++i) {
         int x = width * i / scopeSize;
         if (x < width) {
-            int yWave = (height - 2) * (1.0f - wavePoints[i]);
+            int yWave = (int)((float)(height - 2) * (1.0f - wavePoints[i]));
             yWave = std::max(0, std::min(yWave, height - 2));
             
             // Draw wave point (using simple characters for terminal compatibility)
@@ -216,7 +216,6 @@ void SpectrumAnalyzer::drawWaveMode(std::vector<std::string>& buffer, int width,
 
 void SpectrumAnalyzer::drawBarMode(std::vector<std::string>& buffer, int width, int height) {
     const int numBars = std::min(width - 1, (int)wavePoints.size());
-    const int barWidth = 1;
     
     for (int i = 0; i < numBars; ++i) {
         int x = i + 1; // Start from column 1 (0 is border)
