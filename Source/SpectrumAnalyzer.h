@@ -38,7 +38,7 @@
 
 // Define M_PI for Windows if it's not defined
 #ifndef M_PI
-    #define M_PI 3.14159265358979323846
+    #define M_PI 3.14159265358979323846f
 #endif
 
 /**
@@ -58,7 +58,7 @@ public:
         // Pre-compute twiddle factors
         twiddles.resize(size / 2);
         for (int i = 0; i < size / 2; i++) {
-            double angle = -2.0 * M_PI * i / size;
+            float angle = (float)(-2.0 * M_PI * (float)i / (float)size);
             twiddles[i] = std::complex<float>(cos(angle), sin(angle));
         }
     }

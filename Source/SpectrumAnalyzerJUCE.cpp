@@ -99,14 +99,14 @@ namespace SpectrumAnalyzerAdapter {
         
         // Create gradients for the wave
         juce::ColourGradient gradient(
-            baseColour1.withAlpha(0.8f), 0, height, 
+            baseColour1.withAlpha(0.8f), 0, (float)height, 
             baseColour2.withAlpha(0.3f), 0, 0, false);
         
         g.setGradientFill(gradient);
         
         // Create a path for the wave
         juce::Path wavePath;
-        wavePath.startNewSubPath(0, height);
+        wavePath.startNewSubPath(0, (float)height);
         
         for (int i = 0; i < size; ++i) {
             float x = width * i / static_cast<float>(size - 1);
@@ -119,7 +119,7 @@ namespace SpectrumAnalyzerAdapter {
         }
         
         // Complete the wave path
-        wavePath.lineTo(width, height);
+        wavePath.lineTo((float)width, (float)height);
         wavePath.closeSubPath();
         
         // Fill the wave

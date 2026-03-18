@@ -96,7 +96,7 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
     apvts.addParameterListener("crossoverFreq", this);
     apvts.addParameterListener("highFreqDelay", this);
     apvts.addParameterListener("highFreqMix", this);
-    apvts.addParameterListener("harmonicDetune", this);
+    apvts.addParameterListener("harmDetuneAmount", this);
 }
 
 CustomReverbAudioProcessor::~CustomReverbAudioProcessor()
@@ -115,7 +115,7 @@ CustomReverbAudioProcessor::~CustomReverbAudioProcessor()
     apvts.removeParameterListener("crossoverFreq", this);
     apvts.removeParameterListener("highFreqDelay", this);
     apvts.removeParameterListener("highFreqMix", this);
-    apvts.removeParameterListener("harmonicDetune", this);
+    apvts.removeParameterListener("harmDetuneAmount", this);
 }
 
 //==============================================================================
@@ -475,7 +475,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout CustomReverbAudioProcessor::
     parameters.push_back(std::make_unique<juce::AudioParameterFloat>("highFreqMix", "HF Mix", 0.0f, 1.0f, 0.3f));
     
     // Harmonic detuning for stereo enhancement
-    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("harmonicDetune", "Harmonic Detune", 0.0f, 1.0f, 0.5f));
+    parameters.push_back(std::make_unique<juce::AudioParameterFloat>("harmDetuneAmount", "Harmonic Detune", 0.0f, 1.0f, 0.5f));
     
     return { parameters.begin(), parameters.end() };
 }

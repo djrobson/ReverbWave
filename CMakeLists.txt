@@ -43,7 +43,7 @@ juce_add_plugin("${PROJECT_NAME}"
     BUNDLE_ID "${BUNDLE_ID}"
 
     # On MacOS, plugin is copied to /Users/yourname/Library/Audio/Plug-Ins/
-    COPY_PLUGIN_AFTER_BUILD TRUE
+    COPY_PLUGIN_AFTER_BUILD FALSE
 
     # Change me!
     # A four-character plugin id
