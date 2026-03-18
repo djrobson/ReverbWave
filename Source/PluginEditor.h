@@ -135,6 +135,7 @@ private:
     juce::Slider dryLevelSlider;
     juce::Slider widthSlider;
     juce::Slider highFreqDelaySlider;
+    juce::Slider highFreqMixSlider;
     juce::Slider crossoverSlider;
     juce::Slider harmDetuneAmountSlider;
     juce::ToggleButton freezeModeButton;
@@ -152,6 +153,7 @@ private:
     juce::Label dryLevelLabel;
     juce::Label widthLabel;
     juce::Label highFreqDelayLabel;
+    juce::Label highFreqMixLabel;
     juce::Label crossoverLabel;
     juce::Label harmDetuneAmountLabel;
     juce::Label presetLabel;
@@ -164,6 +166,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dryLevelAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> widthAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highFreqDelayAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highFreqMixAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> crossoverAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> harmDetuneAmountAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> freezeModeAttachment;

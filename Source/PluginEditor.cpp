@@ -432,7 +432,20 @@ CustomReverbAudioProcessorEditor::CustomReverbAudioProcessorEditor (CustomReverb
     
     highFreqDelayAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
         apvts, "highFreqDelay", highFreqDelaySlider));
-    
+
+    // High Frequency Mix Slider
+    highFreqMixSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    highFreqMixSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    highFreqMixSlider.setLookAndFeel(&customLookAndFeel);
+    addAndMakeVisible(highFreqMixSlider);
+
+    highFreqMixLabel.setText("HF Mix", juce::dontSendNotification);
+    highFreqMixLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(highFreqMixLabel);
+
+    highFreqMixAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
+        apvts, "highFreqMix", highFreqMixSlider));
+
     // Crossover Slider
     crossoverSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     crossoverSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
@@ -444,22 +457,20 @@ CustomReverbAudioProcessorEditor::CustomReverbAudioProcessorEditor (CustomReverb
     addAndMakeVisible(crossoverLabel);
     
     crossoverAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        apvts, "crossover", crossoverSlider));
-    crossoverSlider.setRange(0.0f, 1.0f, 0.01f);
-    crossoverSlider.setValue(0.5f);
+        apvts, "crossoverFreq", crossoverSlider));
 
     // Harmonic Detune Amount Slider
     harmDetuneAmountSlider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     harmDetuneAmountSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     harmDetuneAmountSlider.setLookAndFeel(&customLookAndFeel);
     addAndMakeVisible(harmDetuneAmountSlider);
-    
+
     harmDetuneAmountLabel.setText("Harmonic Detune", juce::dontSendNotification);
     harmDetuneAmountLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(harmDetuneAmountLabel);
-    
+
     harmDetuneAmountAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        apvts, "harmDetuneAmount", harmDetuneAmountSlider));  
+        apvts, "harmonicDetune", harmDetuneAmountSlider));  
     // Freeze Mode Button
     freezeModeButton.setButtonText("Freeze");
     addAndMakeVisible(freezeModeButton);
@@ -504,6 +515,7 @@ CustomReverbAudioProcessorEditor::~CustomReverbAudioProcessorEditor()
     dryLevelSlider.setLookAndFeel(nullptr);
     widthSlider.setLookAndFeel(nullptr);
     highFreqDelaySlider.setLookAndFeel(nullptr);
+    highFreqMixSlider.setLookAndFeel(nullptr);
     crossoverSlider.setLookAndFeel(nullptr);
     harmDetuneAmountSlider.setLookAndFeel(nullptr);
 }
@@ -576,9 +588,13 @@ void CustomReverbAudioProcessorEditor::resized()
                         widthSlider.getWidth(), 20);
     
     highFreqDelaySlider.setBounds(row2.removeFromLeft(sliderWidth).reduced(10));
-    highFreqDelayLabel.setBounds(highFreqDelaySlider.getX(), highFreqDelaySlider.getY() - 15, 
+    highFreqDelayLabel.setBounds(highFreqDelaySlider.getX(), highFreqDelaySlider.getY() - 15,
                                 highFreqDelaySlider.getWidth(), 20);
-    
+
+    highFreqMixSlider.setBounds(row2.removeFromLeft(sliderWidth).reduced(10));
+    highFreqMixLabel.setBounds(highFreqMixSlider.getX(), highFreqMixSlider.getY() - 15,
+                               highFreqMixSlider.getWidth(), 20);
+
     crossoverSlider.setBounds(row2.removeFromLeft(sliderWidth).reduced(10));
     crossoverLabel.setBounds(crossoverSlider.getX(), crossoverSlider.getY() - 15, crossoverSlider.getWidth(), 20);
     
@@ -624,8 +640,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(0.5f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.2f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.4f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.4f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
             
         case 1: // Medium Room
@@ -636,8 +652,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(0.7f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.3f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.5f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.5f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
             
         case 2: // Large Hall
@@ -648,8 +664,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(1.0f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.4f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.3f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.3f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
             
         case 3: // Cathedral
@@ -660,8 +676,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(1.0f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.7f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.2f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.2f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
             
         case 4: // Special FX
@@ -672,8 +688,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(1.0f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(1.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.8f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.7f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.7f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
             
         case 5: // Bright Chamber
@@ -684,8 +700,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(0.8f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.1f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.8f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.8f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
             
         case 6: // Dark Space
@@ -696,8 +712,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(0.9f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.5f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.3f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.0f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.3f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.0f);
             break;
         case 7: // Harmonic Detuner
             apvts.getParameter("roomSize")->setValueNotifyingHost(0.4f);
@@ -707,8 +723,8 @@ void CustomReverbAudioProcessorEditor::loadPreset(int presetIndex)
             apvts.getParameter("width")->setValueNotifyingHost(0.7f);
             apvts.getParameter("freezeMode")->setValueNotifyingHost(0.0f);
             apvts.getParameter("highFreqDelay")->setValueNotifyingHost(0.3f);
-            apvts.getParameter("crossover")->setValueNotifyingHost(0.6f);
-            apvts.getParameter("harmDetuneAmount")->setValueNotifyingHost(0.7f);
+            apvts.getParameter("crossoverFreq")->setValueNotifyingHost(0.6f);
+            apvts.getParameter("harmonicDetune")->setValueNotifyingHost(0.7f);
             break;
     }
 }

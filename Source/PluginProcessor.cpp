@@ -245,20 +245,35 @@ void CustomReverbAudioProcessor::changeProgramName (int index, const juce::Strin
 void CustomReverbAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     (void)samplesPerBlock; // Suppress unused parameter warning
-    
-    customParams.sampleRate = sampleRate;
-    // Update parameters that depend on sample rate
-    updateHighFreqParameters();
-    
-    // Prepare reverb processors
+
+    customParams.sampleRate = static_cast<float>(sampleRate);
+
+    // Resize delay buffer for new sample rate (max 0.5s delay)
+    int requiredSize = static_cast<int>(0.5 * sampleRate) + 1;
+    if (requiredSize > highFreqBufferSize)
+    {
+        highFreqBufferSize = requiredSize;
+        highFreqDelayBufferL.resize(highFreqBufferSize, 0.0f);
+        highFreqDelayBufferR.resize(highFreqBufferSize, 0.0f);
+    }
+
+    // Reset all DSP state
     leftReverb.reset();
     rightReverb.reset();
-    //TODO: match samplesPerBlock to array sizes
+    lowpassStateL = 0.0f;
+    lowpassStateR = 0.0f;
+    highFreqDelayWritePos = 0;
+    highFreqDelayReadPos = 0;
+    oddHarmonicPos = 0;
+    evenHarmonicPos = 0;
+    std::fill(highFreqDelayBufferL.begin(), highFreqDelayBufferL.end(), 0.0f);
+    std::fill(highFreqDelayBufferR.begin(), highFreqDelayBufferR.end(), 0.0f);
+    std::fill(oddHarmonicBufferL.begin(), oddHarmonicBufferL.end(), 0.0f);
+    std::fill(evenHarmonicBufferR.begin(), evenHarmonicBufferR.end(), 0.0f);
+
     // Clear FFT and spectrum data
     std::fill(fftData, fftData + 2 * fftSize, 0.0f);
     std::fill(scopeData, scopeData + scopeSize, 0.0f);
-    
-    // Reset FIFO
     fifoIndex = 0;
     nextFFTBlockReady = false;
 }
@@ -322,49 +337,66 @@ void CustomReverbAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Clear any output channels that don't contain input data
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-    
-    // Get pointers to the left and right channels
+
+    const int numSamples = buffer.getNumSamples();
     float* leftChannel = buffer.getWritePointer(0);
     float* rightChannel = buffer.getWritePointer(1);
-    
-    // Process the audio - sample by sample
-    for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+
+    // --- Step 1: Push input into FFT fifo for spectrum analyzer ---
+    for (int i = 0; i < numSamples; ++i)
+    {
+        float monoSample = (leftChannel[i] + rightChannel[i]) * 0.5f;
+        pushNextSampleIntoFifo(monoSample);
+    }
+
+    // --- Step 2: Split into low/high bands, process high-freq delay sample-by-sample ---
+    // We need temporary buffers for the low-frequency content to feed into the block reverb
+    juce::AudioBuffer<float> lowFreqBuffer(2, numSamples);
+    lowFreqBuffer.clear();
+
+    for (int sample = 0; sample < numSamples; ++sample)
     {
         float leftSample = leftChannel[sample];
         float rightSample = rightChannel[sample];
-        
-        // Calculate mono mix for spectrum analyzer
-        float monoSample = (leftSample + rightSample) * 0.5f;
-        pushNextSampleIntoFifo(monoSample);
-        
-        // Split the signal into low and high frequency bands
+
+        // Split into low and high frequency bands
         float leftLow, leftHigh, rightLow, rightHigh;
         processCrossover(leftSample, rightSample, leftLow, leftHigh, rightLow, rightHigh);
-        
-        // Process low frequencies through the main reverb
-        //TODO: Add a stereo reverb for left and right channels
-        float leftLowReverb = 0; //leftReverb.processSample(leftLow);
-        float rightLowReverb = 0; //rightReverb.processSample(rightLow);
-        
-        // Process high frequencies through the delay
+
+        // Store low-frequency content for block-based reverb processing
+        lowFreqBuffer.setSample(0, sample, leftLow);
+        lowFreqBuffer.setSample(1, sample, rightLow);
+
+        // Process high frequencies through the delay and write back
         float leftHighDelay, rightHighDelay;
         processHighFreqDelay(leftHigh, rightHigh, leftHighDelay, rightHighDelay);
-        
-        // Apply harmonic detuning for stereo enhancement
-        float leftOut = leftLowReverb + leftHighDelay;
-        float rightOut = rightLowReverb + rightHighDelay;
-        
+
+        // Store high-freq delay output back into the main buffer temporarily
+        leftChannel[sample] = leftHighDelay;
+        rightChannel[sample] = rightHighDelay;
+    }
+
+    // --- Step 3: Apply JUCE Reverb to low-frequency content (block-based, stereo for width) ---
+    float* lowLeft = lowFreqBuffer.getWritePointer(0);
+    float* lowRight = lowFreqBuffer.getWritePointer(1);
+    leftReverb.processStereo(lowLeft, lowRight, numSamples);
+
+    // --- Step 4: Combine reverbed low-freq with delayed high-freq, apply harmonic detuning ---
+    for (int sample = 0; sample < numSamples; ++sample)
+    {
+        float leftOut = lowFreqBuffer.getSample(0, sample) + leftChannel[sample];
+        float rightOut = lowFreqBuffer.getSample(1, sample) + rightChannel[sample];
+
         // Apply harmonic detuning if enabled
         if (customParams.harmDetuneAmount > 0.001f)
         {
             processHarmonicDetuning(leftOut, rightOut);
         }
-        
-        // Output the processed samples
+
         leftChannel[sample] = leftOut;
         rightChannel[sample] = rightOut;
     }
-    
+
     // Update FFT display if it's time
     if (nextFFTBlockReady)
     {
@@ -378,18 +410,16 @@ void CustomReverbAudioProcessor::processCrossover(float leftIn, float rightIn,
                                                float& rightLow, float& rightHigh)
 {
     // Simple one-pole low-pass/high-pass filter for crossover
-    static float leftLP = 0.0f, rightLP = 0.0f;
-    
     // Calculate filter coefficient from crossover frequency
     float sampleRate = (float)getSampleRate();
     float alpha = 1.0f - (float)std::exp(-2.0f * M_PI * customParams.crossover / sampleRate);
-    
-    // Process crossover
-    leftLP = leftLP + alpha * (leftIn - leftLP);
-    rightLP = rightLP + alpha * (rightIn - rightLP);
-    
-    leftLow = leftLP;
-    rightLow = rightLP;
+
+    // Process crossover using member state variables (not static, so multiple instances work)
+    lowpassStateL = lowpassStateL + alpha * (leftIn - lowpassStateL);
+    lowpassStateR = lowpassStateR + alpha * (rightIn - lowpassStateR);
+
+    leftLow = lowpassStateL;
+    rightLow = lowpassStateR;
     
     leftHigh = leftIn - leftLow;
     rightHigh = rightIn - rightLow;
@@ -398,8 +428,13 @@ void CustomReverbAudioProcessor::processCrossover(float leftIn, float rightIn,
 void CustomReverbAudioProcessor::processHighFreqDelay(float leftIn, float rightIn, 
                                                   float& leftOut, float& rightOut)
 {
-    // Calculate read position
-    highFreqDelayReadPos = highFreqDelayWritePos - highFreqBufferSize;
+    // Calculate read position based on actual delay time
+    int delaySamples = static_cast<int>(customParams.highFreqDelay * getSampleRate());
+    if (delaySamples >= highFreqBufferSize)
+        delaySamples = highFreqBufferSize - 1;
+    if (delaySamples < 1)
+        delaySamples = 1;
+    highFreqDelayReadPos = highFreqDelayWritePos - delaySamples;
     if (highFreqDelayReadPos < 0)
         highFreqDelayReadPos += highFreqBufferSize;
     
@@ -477,11 +512,17 @@ void CustomReverbAudioProcessor::drawNextFrameOfSpectrum()
     float minDb = -100.0f;
     float maxDb = 0.0f;
     
+    auto sr = getSampleRate();
+    if (sr <= 0.0) sr = 44100.0;
+
     for (int i = 0; i < scopeSize; ++i)
     {
-        // Select frequencies logarithmically for better display
-        auto index = static_cast<int>(1.0f * i / scopeSize * (fftSize / 2));
-        
+        // Map scope position to frequency logarithmically (20Hz - 20kHz)
+        float proportion = static_cast<float>(i) / static_cast<float>(scopeSize);
+        float freq = 20.0f * std::pow(1000.0f, proportion); // 20 * 1000^proportion => 20Hz to 20kHz
+        auto index = juce::jlimit(0, fftSize / 2 - 1,
+                                  static_cast<int>(freq / (static_cast<float>(sr) / static_cast<float>(fftSize))));
+
         // Find the magnitude
         auto level = fftData[index];
         
