@@ -109,3 +109,33 @@ target_link_libraries(SharedCode
     
 # Link the JUCE plugin targets our SharedCode target
 target_link_libraries("${PROJECT_NAME}" PRIVATE SharedCode)
+
+# ==============================================================================
+# Testing Framework Configuration
+# ==============================================================================
+
+option(BUILD_TESTS "Build unit tests" OFF)
+
+if(BUILD_TESTS)
+    message(STATUS "Building ReverbWave tests...")
+    enable_testing()
+
+    # Create simple standalone test executable
+    add_executable(ReverbWaveTests
+        Tests/SimpleTest.cpp
+    )
+
+    # No JUCE dependencies - pure C++ test
+    target_compile_features(ReverbWaveTests PRIVATE cxx_std_17)
+
+    # Set up test properties
+    set_target_properties(ReverbWaveTests PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+    )
+
+    # Add the test to CTest
+    add_test(NAME ReverbWaveUnitTests COMMAND ReverbWaveTests)
+
+    message(STATUS "Tests configured. Run with: make ReverbWaveTests && ./ReverbWaveTests")
+endif()
