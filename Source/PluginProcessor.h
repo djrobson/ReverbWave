@@ -137,6 +137,12 @@ public:
 
 private:
   //==============================================================================
+  // Parameter Management Constants
+
+  /** List of all parameter IDs for automated listener management */
+  static const std::vector<std::string> parameterIDs;
+
+  //==============================================================================
   /**
    * Custom reverb parameters structure
    *
@@ -229,6 +235,24 @@ private:
   /** Updates parameters for high frequency processing based on current values
    */
   void updateHighFreqParameters();
+
+  //==============================================================================
+  // Helper Methods for Refactored Code
+
+  /** Manages parameter listener registration/deregistration */
+  void setupParameterListeners();
+  void removeParameterListeners();
+
+  /** Helper for clearing various audio buffers */
+  template <typename Container> void clearBuffer(Container &buffer);
+  void clearFixedArray(float *array, size_t size);
+
+  /** Helper for resizing delay buffers */
+  void resizeDelayBuffers(int newSize);
+
+  /** Template for stereo channel processing */
+  template <typename ProcessFunc>
+  void processStereoChannels(float &left, float &right, ProcessFunc func);
 
   //==============================================================================
   // Spectrum Analysis Implementation
