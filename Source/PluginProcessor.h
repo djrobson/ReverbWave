@@ -135,9 +135,29 @@ public:
     scopeSize = 512          // Number of points to display in visualizer
   };
 
+  /** DSP Processing Constants */
+  static constexpr float defaultSampleRate =
+      44100.0f; // Default sample rate (44.1kHz)
+  static constexpr float defaultCrossoverFreq =
+      2000.0f; // Default crossover frequency (2kHz)
+  static constexpr float maxDelayTimeSec =
+      0.5f; // Maximum delay time in seconds
+
 private:
   //==============================================================================
   // Parameter Management Constants
+
+  /** Parameter ID constants - prevents typos and improves maintainability */
+  static constexpr const char *roomSizeParamID = "roomSize";
+  static constexpr const char *dampingParamID = "damping";
+  static constexpr const char *wetLevelParamID = "wetLevel";
+  static constexpr const char *dryLevelParamID = "dryLevel";
+  static constexpr const char *widthParamID = "width";
+  static constexpr const char *freezeModeParamID = "freezeMode";
+  static constexpr const char *crossoverFreqParamID = "crossoverFreq";
+  static constexpr const char *highFreqDelayParamID = "highFreqDelay";
+  static constexpr const char *highFreqMixParamID = "highFreqMix";
+  static constexpr const char *harmDetuneAmountParamID = "harmDetuneAmount";
 
   /** List of all parameter IDs for automated listener management */
   static const std::vector<std::string> parameterIDs;
@@ -257,8 +277,9 @@ private:
   //==============================================================================
   // Spectrum Analysis Implementation
 
-  /** Pointer to the spectrum analyzer component for visualization */
-  SpectrumAnalyzerComponent *spectrumAnalyzer = nullptr;
+  /** Thread-safe pointer to the spectrum analyzer component for visualization
+   */
+  juce::Atomic<SpectrumAnalyzerComponent *> spectrumAnalyzer{nullptr};
 
   /** FFT analysis objects for spectrum visualization */
   juce::dsp::FFT forwardFFT; // FFT processor

@@ -52,7 +52,8 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
       window(fftSize, juce::dsp::WindowingFunction<float>::hann),
       apvts(*this, nullptr, "Parameters", createParameters()) {
   // Initialize memory for high frequency delay
-  highFreqBufferSize = 44100; // 1 second at 44.1kHz
+  highFreqBufferSize =
+      static_cast<int>(defaultSampleRate); // 1 second at default sample rate
   highFreqDelayBufferL.resize(highFreqBufferSize, 0.0f);
   highFreqDelayBufferR.resize(highFreqBufferSize, 0.0f);
 
@@ -69,7 +70,7 @@ CustomReverbAudioProcessor::CustomReverbAudioProcessor()
   reverbParams.freezeMode = 0.0f;
 
   // Initialize crossover frequency
-  customParams.crossover = 2000.0f;
+  customParams.crossover = defaultCrossoverFreq;
   customParams.highFreqDelay = 0.1f; // 100ms default
   customParams.highFreqDelayMix = 0.3f;
 
@@ -109,31 +110,31 @@ CustomReverbAudioProcessor::~CustomReverbAudioProcessor() {
 void CustomReverbAudioProcessor::parameterChanged(
     const juce::String &parameterID, float newValue) {
   // Update parameters based on changes in the GUI or automation
-  if (parameterID == "roomSize")
+  if (parameterID == roomSizeParamID)
     reverbParams.roomSize = newValue;
-  else if (parameterID == "damping")
+  else if (parameterID == dampingParamID)
     reverbParams.damping = newValue;
-  else if (parameterID == "wetLevel")
+  else if (parameterID == wetLevelParamID)
     reverbParams.wetLevel = newValue;
-  else if (parameterID == "dryLevel")
+  else if (parameterID == dryLevelParamID)
     reverbParams.dryLevel = newValue;
-  else if (parameterID == "width")
+  else if (parameterID == widthParamID)
     reverbParams.width = newValue;
-  else if (parameterID == "freezeMode")
+  else if (parameterID == freezeModeParamID)
     reverbParams.freezeMode = newValue;
-  else if (parameterID == "crossoverFreq")
+  else if (parameterID == crossoverFreqParamID)
     customParams.crossover = 20.0f * std::pow(1000.0f, newValue);
-  else if (parameterID == "highFreqDelay")
+  else if (parameterID == highFreqDelayParamID)
     customParams.highFreqDelay = juce::jmap(newValue, 0.001f, 0.5f);
-  else if (parameterID == "highFreqMix")
+  else if (parameterID == highFreqMixParamID)
     customParams.highFreqDelayMix = newValue;
-  else if (parameterID == "harmonicDetune")
+  else if (parameterID == harmDetuneAmountParamID)
     customParams.harmDetuneAmount = newValue;
 
   // Update the reverb processors with new parameters
-  if (parameterID == "roomSize" || parameterID == "damping" ||
-      parameterID == "wetLevel" || parameterID == "dryLevel" ||
-      parameterID == "width" || parameterID == "freezeMode") {
+  if (parameterID == roomSizeParamID || parameterID == dampingParamID ||
+      parameterID == wetLevelParamID || parameterID == dryLevelParamID ||
+      parameterID == widthParamID || parameterID == freezeModeParamID) {
     updateReverbParameters();
   }
 }
@@ -223,7 +224,12 @@ bool CustomReverbAudioProcessor::isMidiEffect() const {
 #endif
 }
 
-double CustomReverbAudioProcessor::getTailLengthSeconds() const { return 0.0; }
+double CustomReverbAudioProcessor::getTailLengthSeconds() const {
+  // Reverb tail length should reflect the actual decay time of the effect
+  // This helps DAWs know when to stop rendering and affects bounce/export
+  // behavior
+  return 4.0; // 4 seconds is appropriate for a reverb effect
+}
 
 int CustomReverbAudioProcessor::getNumPrograms() {
   return 1; // NB: some hosts don't cope very well if you tell them there are 0
@@ -255,8 +261,8 @@ void CustomReverbAudioProcessor::prepareToPlay(double sampleRate,
 
   customParams.sampleRate = static_cast<float>(sampleRate);
 
-  // Resize delay buffer for new sample rate (max 0.5s delay) using helper
-  int requiredSize = static_cast<int>(0.5 * sampleRate) + 1;
+  // Resize delay buffer for new sample rate (max delay time) using helper
+  int requiredSize = static_cast<int>(maxDelayTimeSec * sampleRate) + 1;
   resizeDelayBuffers(requiredSize);
 
   // Reset all DSP state
@@ -475,29 +481,29 @@ CustomReverbAudioProcessor::createParameters() {
 
   // Reverb parameters
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "roomSize", "Room Size", 0.0f, 1.0f, 0.5f));
+      roomSizeParamID, "Room Size", 0.0f, 1.0f, 0.5f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "damping", "Damping", 0.0f, 1.0f, 0.5f));
+      dampingParamID, "Damping", 0.0f, 1.0f, 0.5f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "wetLevel", "Wet Level", 0.0f, 1.0f, 0.33f));
+      wetLevelParamID, "Wet Level", 0.0f, 1.0f, 0.33f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "dryLevel", "Dry Level", 0.0f, 1.0f, 0.4f));
+      dryLevelParamID, "Dry Level", 0.0f, 1.0f, 0.4f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "width", "Width", 0.0f, 1.0f, 1.0f));
+      widthParamID, "Width", 0.0f, 1.0f, 1.0f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "freezeMode", "Freeze Mode", 0.0f, 1.0f, 0.0f));
+      freezeModeParamID, "Freeze Mode", 0.0f, 1.0f, 0.0f));
 
   // Advanced parameters
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "crossoverFreq", "Crossover Freq", 0.0f, 1.0f, 0.5f));
+      crossoverFreqParamID, "Crossover Freq", 0.0f, 1.0f, 0.5f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "highFreqDelay", "HF Delay", 0.0f, 1.0f, 0.2f));
+      highFreqDelayParamID, "HF Delay", 0.0f, 1.0f, 0.2f));
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "highFreqMix", "HF Mix", 0.0f, 1.0f, 0.3f));
+      highFreqMixParamID, "HF Mix", 0.0f, 1.0f, 0.3f));
 
   // Harmonic detuning for stereo enhancement
   parameters.push_back(std::make_unique<juce::AudioParameterFloat>(
-      "harmDetuneAmount", "Harmonic Detune", 0.0f, 1.0f, 0.5f));
+      harmDetuneAmountParamID, "Harmonic Detune", 0.0f, 1.0f, 0.5f));
 
   return {parameters.begin(), parameters.end()};
 }
@@ -532,7 +538,7 @@ void CustomReverbAudioProcessor::drawNextFrameOfSpectrum() {
 
   auto sr = getSampleRate();
   if (sr <= 0.0)
-    sr = 44100.0;
+    sr = defaultSampleRate;
 
   for (int i = 0; i < scopeSize; ++i) {
     // Map scope position to frequency logarithmically (20Hz - 20kHz)
@@ -558,14 +564,15 @@ void CustomReverbAudioProcessor::drawNextFrameOfSpectrum() {
     scopeData[i] = level;
   }
 
-  // Send the data to the spectrum analyzer if available
-  if (spectrumAnalyzer != nullptr)
-    spectrumAnalyzer->updateSpectrum(scopeData, scopeSize);
+  // Send the data to the spectrum analyzer if available (thread-safe)
+  auto *analyzer = spectrumAnalyzer.get();
+  if (analyzer != nullptr)
+    analyzer->updateSpectrum(scopeData, scopeSize);
 }
 
 void CustomReverbAudioProcessor::setSpectrumAnalyzer(
     SpectrumAnalyzerComponent *analyzer) {
-  spectrumAnalyzer = analyzer;
+  spectrumAnalyzer.set(analyzer);
 }
 
 //==============================================================================
