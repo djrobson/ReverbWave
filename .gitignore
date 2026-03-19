@@ -1,6 +1,7 @@
 # Build output directories
 build/
 JuceLibraryCode/
+ReverbWave_artefacts/
 *.o
 *.exe
 *.out
@@ -11,6 +12,28 @@ JuceLibraryCode/
 *.dylib
 juce_plugin_build.cmake
 CustomReverbPlugin.jucer
+
+# CMake build artifacts
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+Testing/
+JUCE/CMakeFiles/
+JUCE/tools/
+JUCE/Makefile
+JUCE/cmake_install.cmake
+JUCE/JUCEConfig.cmake
+JUCE/JUCEConfigVersion.cmake
+JUCE/JUCEExportConfig.cmake
+JUCE/modules/CMakeFiles/
+JUCE/modules/Makefile
+JUCE/modules/cmake_install.cmake
+
+# Test executables
+ReverbWaveTests*
+*Tests.exe
 
 # Backup files
 *.bak

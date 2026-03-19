@@ -120,7 +120,7 @@ if(BUILD_TESTS)
     message(STATUS "Building ReverbWave tests...")
     enable_testing()
 
-    # Create simple standalone test executable
+    # Phase 1: Simple standalone test executable (no JUCE dependencies)
     add_executable(ReverbWaveTests
         Tests/SimpleTest.cpp
     )
@@ -134,8 +134,61 @@ if(BUILD_TESTS)
         CXX_STANDARD_REQUIRED ON
     )
 
-    # Add the test to CTest
-    add_test(NAME ReverbWaveUnitTests COMMAND ReverbWaveTests)
+    # Phase 2: Real JUCE integration test executable (simplified approach)
+    add_executable(ReverbWavePhase2Tests
+        Tests/Phase2-RealRefactoringTests.cpp
+        Source/PluginProcessor.cpp
+        Source/PluginEditor.cpp
+        Source/SpectrumAnalyzer.cpp
+        Source/SpectrumAnalyzerJUCE.cpp
+        Source/harmonic_detuning.cpp
+    )
 
-    message(STATUS "Tests configured. Run with: make ReverbWaveTests && ./ReverbWaveTests")
+    # Link to JUCE modules directly for testing
+    target_link_libraries(ReverbWavePhase2Tests PRIVATE
+        juce_audio_basics
+        juce_audio_processors
+        juce_core
+        juce_data_structures
+        juce_events
+        juce_gui_basics
+        juce_gui_extra
+        juce_dsp
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags
+    )
+
+    target_compile_features(ReverbWavePhase2Tests PRIVATE cxx_std_17)
+
+    # Add include paths for JUCE modules and test headers
+    target_include_directories(ReverbWavePhase2Tests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/modules"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Tests"
+    )
+
+    # Add plugin defines needed by PluginProcessor.cpp
+    target_compile_definitions(ReverbWavePhase2Tests PRIVATE
+        JucePlugin_Build_VST3=1
+        JucePlugin_Build_AU=1
+        JucePlugin_Build_Standalone=1
+        JucePlugin_Name="ReverbWave"
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_WEB_BROWSER=0
+        JUCE_USE_CURL=0
+        PRODUCT_NAME_WITHOUT_VERSION="ReverbWave"
+    )
+
+    # Set up Phase 2 test properties
+    set_target_properties(ReverbWavePhase2Tests PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+    )
+
+    # Add tests to CTest
+    add_test(NAME ReverbWaveUnitTests COMMAND ReverbWaveTests)
+    add_test(NAME ReverbWaveJUCEIntegrationTests COMMAND ReverbWavePhase2Tests)
+
+    message(STATUS "Phase 1 tests configured: make ReverbWaveTests && ./ReverbWaveTests")
+    message(STATUS "Phase 2 tests configured: make ReverbWavePhase2Tests && ./ReverbWavePhase2Tests")
 endif()
