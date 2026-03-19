@@ -1,4 +1,5 @@
 # Build output directories
+.vs/
 build/
 JuceLibraryCode/
 ReverbWave_artefacts/
